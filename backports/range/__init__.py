@@ -1,7 +1,6 @@
 """The range class from Python3"""
-from __future__ import print_function, division
+from __future__ import division
 import operator
-import itertools
 
 
 try:
@@ -178,12 +177,8 @@ class range(object):
                     )
                 )
             )
+        # specs assert that range objects may ONLY equal to range objects
         return NotImplemented
-        # do some trivial checks
-        if isinstance(other, (list, tuple)):
-            if len(other) != self.__len__():
-                return False
-        return all(my_val == other_val for my_val, other_val in izip_longest(self, other))
 
     def __ne__(self, other):
         return not self == other
