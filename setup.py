@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import with_statement
 import os
 from setuptools import setup
 
-long_description = open(os.path.join(
-    os.path.dirname(__file__), 'backports', 'range', 'README.rst',
-    )).read()
+with open(os.path.join(os.path.dirname(__file__), 'backports', 'range', 'README.rst')) as readme:
+    long_description = readme.read()
 
 setup(
     name='backports.range',
