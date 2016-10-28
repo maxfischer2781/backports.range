@@ -3,7 +3,7 @@ import os
 from distutils.core import setup
 
 long_description = open(os.path.join(
-    os.path.dirname(__file__), 'backports', 'reange', 'README.rst',
+    os.path.dirname(__file__), 'backports', 'range', 'README.rst',
     )).read()
 
 setup(
