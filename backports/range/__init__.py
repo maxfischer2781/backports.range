@@ -68,6 +68,7 @@ class range(object):
         _len = (self._stop - self._start) // self._step
         _len += 1 if (self._stop - self._start) % self._step else 0
         self._len = 0 if _len < 0 else _len
+        self._bool = bool(self._len)
 
     # attributes are read-only
     @property
@@ -83,9 +84,7 @@ class range(object):
         return self._step
 
     def __bool__(self):
-        if self._step > 0:
-            return self._start < self._stop
-        return self._start > self._stop
+        return self._bool
 
     __nonzero__ = __bool__
 
