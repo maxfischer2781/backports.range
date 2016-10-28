@@ -10,7 +10,7 @@ try:
 except ImportError:
     # noinspection PyCompatibility
     import builtins as __builtin__
-#: original range builtin
+
 builtin_range = __builtin__.range
 try:  # Py2
     builtin_xrange = __builtin__.xrange
@@ -22,6 +22,12 @@ try:
 except ImportError:
     from itertools import izip_longest
 
+# default integer __eq__
+# python 2 has TWO separate integer types we need to check
+try:
+    _int__eq__s = set((int.__eq__, long.__eq__))
+except NameError:
+    _int__eq__s = set((int.__eq__,))
 
 # noinspection PyShadowingBuiltins,PyPep8Naming
 class range(object):
@@ -158,16 +164,20 @@ class range(object):
     # order comparisons are forbidden
     def __lt__(self, other):
         return NotImplemented
-        #raise TypeError('unorderable types: range() < range()')
-
-
 
     def __contains__(self, item):
-        trivial_test_val = self._trivial_test_type(item)
-        if trivial_test_val is not None:
-            return self._contains_int(trivial_test_val)
-        # take the slow path, compare every single item
-        return any(self_item == item for self_item in self)
+        # specs use fast comparison ONLY for pure ints
+        # subtypes are not allowed, so that custom __eq__ can be used
+        # we use fast comparison only if:
+        #   a type does use the default __eq__
+        try:
+            if type(item).__eq__ not in _int__eq__s:
+                raise AttributeError
+        except AttributeError:
+            # take the slow path, compare every single item
+            return any(self_item == item for self_item in self)
+        else:
+            return self._contains_int(item)
 
     @staticmethod
     def _trivial_test_type(value):
