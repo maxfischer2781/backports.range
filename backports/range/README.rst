@@ -30,10 +30,6 @@ Compatibility
 
    - Comparing `range` against other types does not throw `TypeError` in python 2.X.
 
-- Known limitations:
-
-   - Pickling `range` iterators is not possible at the moment.
-
 Notice
 ------
 This packages includes parts of the python documentation (http://www.python.org)
