@@ -89,9 +89,9 @@ class range(object):
     __nonzero__ = __bool__
 
     # NOTE:
-    # We're repeatedly calling self.__len__() instead of len(self)!
+    # We repeatedly use self._len instead of len(self)!
     # The len-protocol can cause overflow, since it only expects an int, not
-    # py2 long int etc. We circumvent this with the direct call.
+    # py2 long int etc. We circumvent this with the direct lookup.
     def __len__(self):
         return self._len
 
@@ -102,7 +102,7 @@ class range(object):
         # see: http://stackoverflow.com/q/39971030/5349916
         if item.__class__ is slice:
             # we cannot use item.indices since that may overflow in py2.X...
-            start, stop, stride, max_len = item.start, item.stop, item.step, self.__len__()
+            start, stop, stride, max_len = item.start, item.stop, item.step, self._len
             # nothing to slice on
             if not max_len:
                 return self.__class__(0, 0)
@@ -132,22 +132,22 @@ class range(object):
         # check type first
         val = operator.index(item)
         if val < 0:
-            val += self.__len__()
-        if val < 0 or val >= self.__len__():
+            val += self._len
+        if val < 0 or val >= self._len:
             raise IndexError('%s object index out of range %s' % (self, item))
         return self._start + self._step * val
 
     def __iter__(self):
         # Let's reinvent the wheel again...
         # We *COULD* use xrange here, but that leads to OverflowErrors etc.
-        idx, max_len = 0, self.__len__()
+        idx, max_len = 0, self._len
         while idx < max_len:
             yield self[idx]
             idx += 1
 
     def __reversed__(self):
         # this is __iter__ in reverse, *by definition*
-        idx = self.__len__() - 1
+        idx = self._len - 1
         while idx >= 0:
             yield self[idx]
             idx -= 1
@@ -158,12 +158,13 @@ class range(object):
                 # empty range
                 (not self and not other)
                 # same values
-                or self.__len__() == other.__len__()
-                and (
+                or self._len == other.__len__()
+                and
+                (
                     (
                         # if there is only one element, only the first
                         # aka start counts
-                        self.__len__() == 1
+                        self._len == 1
                         and self._start == other.start
                     ) or (
                         # first value must match
@@ -248,11 +249,11 @@ class range(object):
         # Hash should signify the same sequence of values
         # We hash a tuple of values that define the range.
         # derived from rangeobject.c
-        my_len = self.__len__()
+        my_len = self._len
         if not my_len:
             return hash((0, None, None))
         elif my_len == 1:
-            return hash((my_len, self._start, None))
+            return hash((1, self._start, None))
         return hash((my_len, self._start, self._step))
 
     def __repr__(self):
