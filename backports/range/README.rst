@@ -17,14 +17,22 @@ Compatibility
 
 - Features are tested against the Python 3.6 unittests for `range`.
 
+- The following python versions are tested explicitly:
+
+   - python (aka CPython): 2.6, 2.7, 3.2, 3.3, 3.4, 3.5
+
+   - pypy: pypy2, pypy3
+
 - There is no official support for Cython yet.
 
 - Some features depending on language features or other modules may not be
   available:
 
-   - Pickling iterators/generators depends on language support.
-
    - Comparing `range` against other types does not throw `TypeError` in python 2.X.
+
+- Known limitations:
+
+   - Pickling `range` iterators is not possible at the moment.
 
 Notice
 ------
