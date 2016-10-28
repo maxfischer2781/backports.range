@@ -205,9 +205,7 @@ class range(object):
     def _trivial_test_type(value):
         try:
             # we can contain only int-like objects
-            val = int(value)
-            if val != value:
-                raise TypeError
+            val = operator.index(value)
         except (TypeError, ValueError, AttributeError):
             # however, an object may compare equal to our items
             return None
