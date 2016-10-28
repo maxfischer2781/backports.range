@@ -1,7 +1,7 @@
 """The range class from Python3"""
 from __future__ import division
 import operator
-
+import sys
 
 try:
     # noinspection PyCompatibility
@@ -258,3 +258,26 @@ class range(object):
         if self.step != 1:
             return '%s(%s, %s, %s)' % (self.__class__.__name__, self._start, self._stop, self._step)
         return '%s(%s, %s)' % (self.__class__.__name__, self._start, self._stop)
+
+
+class range_iterator(object):
+    """Iterator over a `range`, for internal use only"""
+    def __init__(self, start, step, count):
+        self._start = start
+        self._step = step
+        self._stop = count - 1
+        self._current = -1
+
+    def __iter__(self):
+        return self
+
+    def _next(self):
+        if self._current == self._stop:
+            raise StopIteration
+        self._current += 1
+        return self._start + self._step * self._current
+
+    if sys.version < (3,):
+        next = _next
+    else:
+        __next__ = _next
