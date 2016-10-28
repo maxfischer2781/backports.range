@@ -274,7 +274,7 @@ class range_iterator(object):
         self._current += 1
         return self._start + self._step * self._current
 
-    if sys.version < (3,):
+    if sys.version_info < (3,):
         next = _next
     else:
         __next__ = _next
