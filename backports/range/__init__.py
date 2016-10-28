@@ -4,17 +4,9 @@ import operator
 import sys
 
 try:
-    # noinspection PyCompatibility
-    import __builtin__
+    import collections.abc as _abc
 except ImportError:
-    # noinspection PyCompatibility
-    import builtins as __builtin__
-
-builtin_range = __builtin__.range
-try:  # Py2
-    builtin_xrange = __builtin__.xrange
-except AttributeError:  # Py3
-    builtin_xrange = __builtin__.range
+    import collections as _abc
 
 try:
     from itertools import zip_longest as izip_longest
@@ -27,6 +19,7 @@ try:
     _int__eq__s = set((int.__eq__, long.__eq__))
 except NameError:
     _int__eq__s = set((int.__eq__,))
+
 
 # noinspection PyShadowingBuiltins,PyPep8Naming
 class range(object):
@@ -278,3 +271,8 @@ class range_iterator(object):
         next = _next
     else:
         __next__ = _next
+
+# register at ABCs
+# do not use decorators to play nice with Cython
+_abc.Sequence.register(range)
+_abc.Iterator.register(range_iterator)
