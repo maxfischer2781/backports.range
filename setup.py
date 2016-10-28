@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-from distutils.core import setup
+from setuptools import setup
 
 long_description = open(os.path.join(
     os.path.dirname(__file__), 'backports', 'range', 'README.rst',
@@ -25,4 +25,5 @@ setup(
         'Programming Language :: Python :: 3.4',
         ],
     packages=['backports', 'backports.range'],
+    test_suite='backports_range_unittests',
     )
