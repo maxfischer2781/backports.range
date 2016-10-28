@@ -22,8 +22,9 @@ Compatibility
 - Some features depending on language features or other modules may not be
   available:
 
-   o Pickling iterators/generators depends on language support.
+   - Pickling iterators/generators depends on language support.
 
+   - Comparing `range` against other types does not throw `TypeError` in python 2.X.
 
 Notice
 ------
