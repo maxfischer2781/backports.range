@@ -13,8 +13,10 @@ from __future__ import print_function
 import sys
 import pickle
 import itertools
+import contextlib
 from backports.range import range
 
+# Backports of testing infrastructure
 try:
     import unittest2 as unittest
 except ImportError:
@@ -89,6 +91,13 @@ class RangeTest(unittest.TestCase):
                     unittest.case.safe_repr(expr2)
                 )
                 self.fail(self._formatMessage(msg, standardMsg))
+
+    if not hasattr(unittest.TestCase, 'subTest'):
+        @contextlib.contextmanager
+        def subTest(self, msg=None, **params):
+            """Dummy Placeholders"""
+            yield None
+            return
 
     # original unittests
     def assert_iterators_equal(self, xs, ys, test_id, limit=None):
