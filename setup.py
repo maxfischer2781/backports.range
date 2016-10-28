@@ -13,7 +13,7 @@ setup(
     long_description=long_description,
     author='Max Fischer',
     author_email='maxfischer2781@gmail.com',
-    url='http://bitbucket.org/brandon/backports.ssl_match_hostname',
+    url='https://github.com/maxfischer2781/backports.range.git',
     license='Python Software Foundation License',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -24,5 +24,5 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         ],
-    packages=['backports', 'backports.ssl_match_hostname'],
+    packages=['backports', 'backports.range'],
     )
