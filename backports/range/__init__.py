@@ -140,17 +140,14 @@ class range(object):
     def __iter__(self):
         # Let's reinvent the wheel again...
         # We *COULD* use xrange here, but that leads to OverflowErrors etc.
-        idx, max_len = 0, self._len
-        while idx < max_len:
-            yield self[idx]
-            idx += 1
+        return range_iterator(self._start, self.step, self._len)
 
     def __reversed__(self):
         # this is __iter__ in reverse, *by definition*
-        idx = self._len - 1
-        while idx >= 0:
-            yield self[idx]
-            idx -= 1
+        if self._len:
+            return range_iterator(self[-1], -self.step, self._len)
+        else:
+            return range_iterator(0, 1, 0)
 
     def __eq__(self, other):
         if isinstance(self, other.__class__):
