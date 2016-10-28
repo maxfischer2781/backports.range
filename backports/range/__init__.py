@@ -63,6 +63,12 @@ class range(object):
             self._step = operator.index(step) if step is not None else 1
         if self._step == 0:
             raise ValueError('range() arg 3 must not be zero')
+        # length depends only on read-only values, so compute it only once
+        # practically ALL methods use it, so compute it NOW
+        # range is required to handle large ints outside of float precision
+        _len = (self._stop - self._start) // self._step
+        _len += 1 if (self._stop - self._start) % self._step else 0
+        self._len = 0 if _len < 0 else _len
 
     # attributes are read-only
     @property
@@ -89,9 +95,7 @@ class range(object):
     # The len-protocol can cause overflow, since it only expects an int, not
     # py2 long int etc. We circumvent this with the direct call.
     def __len__(self):
-        _len = (self._stop - self._start) // self._step
-        _len += 1 if (self._stop - self._start) % self._step else 0
-        return _len if _len > 0 else 0
+        return self._len
 
     def __getitem__(self, item):
         # index) range(1, 10, 2)[3] => 1 + 2 * 3 if < 10
