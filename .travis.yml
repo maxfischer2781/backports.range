@@ -20,11 +20,10 @@ matrix:
   - python: "3.6-dev"
   - python: "nightly"
 before_script:
-  - pip install codecov
+  - if [[ $TRAVIS_PYTHON_VERSION != "3.2" ]]; then COVERAGE_SUPPORTED="Yes"; fi
+  - if [[ -n "$COVERAGE_SUPPORTED" ]]; then pip install codecov; fi
   - export COVERAGE_PROCESS_START=$(pwd)/.coveragerc
 script:
-  - coverage run setup.py test
+  - if [[ -n "$COVERAGE_SUPPORTED" ]]; then coverage run setup.py test; else python setup.py test; fi
 after_success:
-  - coverage combine .coverage.*
-  - coverage report
-  - codecov
+  - if [[ -n "$COVERAGE_SUPPORTED" ]]; then coverage combine .coverage.* && coverage report && codecov; fi
