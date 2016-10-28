@@ -102,9 +102,9 @@ class range(object):
             # we cannot use item.indices since that may overflow...
             start, stop, stride, max_len = item.start, item.stop, item.step, self.__len__()
             start = 0 if start is None else operator.index(start)
-            start = min(max_len + start if start < 0 else start, max_len)
+            start = min(max_len + start if start < 0 else start, max_len - 1)
             stop = max_len if stop is None else operator.index(stop)
-            stop = min(max_len + stop if stop < 0 else stop, max_len)
+            stop = min(max_len + stop if stop < 0 else stop, max_len - 1)
             stride = 1 if stride is None else stride
             if start == stop:
                 return self.__class__(0, 0)
