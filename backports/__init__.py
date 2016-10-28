@@ -1,5 +1,1 @@
-# This is a Python "namespace package" http://www.python.org/dev/peps/pep-0382/
-from pkgutil import extend_path
-
-# noinspection PyUnboundLocalVariable
-__path__ = extend_path(__path__, __name__)
+__import__("pkg_resources").declare_namespace(__name__)
