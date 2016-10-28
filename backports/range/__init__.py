@@ -99,21 +99,41 @@ class range(object):
         # There are no custom slices allowed, so we can do a fast check
         # see: http://stackoverflow.com/q/39971030/5349916
         if item.__class__ is slice:
-            # we cannot use item.indices since that may overflow...
+            # we cannot use item.indices since that may overflow in py2.X...
             start, stop, stride, max_len = item.start, item.stop, item.step, self.__len__()
-            start = 0 if start is None else operator.index(start)
-            start = min(max_len + start if start < 0 else start, max_len - 1)
-            stop = max_len if stop is None else operator.index(stop)
-            stop = min(max_len + stop if stop < 0 else stop, max_len - 1)
-            stride = 1 if stride is None else stride
-            if start == stop:
+            # nothing to slice on
+            if not max_len:
                 return self.__class__(0, 0)
-            return self.__class__(self[start], self[stop], self.step * stride)
-        if item < 0:
-            item += self.__len__()
-        if item >= self.__len__() or item < 0:
-            raise IndexError('range object index out of range %s' % item)
-        return self._start + self._step * item
+            if start is None:  # unset, use self[0]
+                new_start = self._start
+            else:
+                start_idx = operator.index(start)
+                if start_idx >= max_len:  # cut off out-of-range
+                    new_start = self._stop
+                elif start_idx < -max_len:
+                    new_start = self._start
+                else:
+                    new_start = self[start_idx]
+            if stop is None:
+                new_stop = self._stop
+            else:
+                stop_idx = operator.index(stop)
+                if stop_idx >= max_len:
+                    new_stop = self._stop
+                elif stop_idx < -max_len:
+                    new_stop = self._start
+                else:
+                    new_stop = self[stop_idx]
+            stride = 1 if stride is None else stride
+            return self.__class__(new_start, new_stop, self.step * stride)
+            #return self.__class__(self[start], self[stop], self.step * stride)
+        # check type first
+        val = operator.index(item)
+        if val < 0:
+            val += self.__len__()
+        if val < 0 or val >= self.__len__():
+            raise IndexError('%s object index out of range %s' % (self, item))
+        return self._start + self._step * val
 
     def __iter__(self):
         # Let's reinvent the wheel again...
