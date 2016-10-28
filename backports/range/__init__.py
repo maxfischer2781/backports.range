@@ -88,6 +88,8 @@ class range(object):
         return _len if _len > 0 else 0
 
     def __getitem__(self, item):
+        # index) range(1, 10, 2)[3] => 1 + 2 * 3 if < 10
+        # slice) range(1, 10, 2)[1:3] => range(3, 7)
         # There are no custom slices allowed, so we can do a fast check
         # see: http://stackoverflow.com/q/39971030/5349916
         if item.__class__ is slice:
@@ -99,8 +101,8 @@ class range(object):
             stop = min(max_len + stop if stop < 0 else stop, max_len)
             stride = 1 if stride is None else stride
             if start == stop:
-                return []
-            return [self[idx] for idx in range(start, stop, stride)]
+                return self.__class__(0, 0)
+            return self.__class__(self[start], self[stop], self.step * stride)
         if item < 0:
             item += self.__len__()
         if item >= self.__len__() or item < 0:
