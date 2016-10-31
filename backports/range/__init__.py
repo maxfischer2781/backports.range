@@ -25,6 +25,9 @@ except NameError:
 class range(object):
     def __init__(self, start_stop, stop=None, step=None):
         """
+        Object that produces a sequence of integers from start (inclusive) to
+        stop (exclusive) by step.
+
         The arguments to the range constructor must be integers (either built-in
         :class:`int` or any object that implements the ``__index__`` special
         method).  If the *_step* argument is omitted, it defaults to ``1``.
