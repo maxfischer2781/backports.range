@@ -23,7 +23,7 @@ except NameError:
 
 # noinspection PyShadowingBuiltins,PyPep8Naming
 class range(object):
-    __slots__ = ('__weakref__', '_start', '_stop', '_step', '_len', '_bool')
+    __slots__ = ('_start', '_stop', '_step', '_len', '_bool')
 
     def __init__(self, start_stop, stop=None, step=None):
         """
