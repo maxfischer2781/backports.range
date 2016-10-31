@@ -124,7 +124,6 @@ class range(object):
                     new_stop = self[stop_idx]
             stride = 1 if stride is None else stride
             return self.__class__(new_start, new_stop, self.step * stride)
-            #return self.__class__(self[start], self[stop], self.step * stride)
         # check type first
         val = operator.index(item)
         if val < 0:
