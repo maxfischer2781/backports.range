@@ -146,29 +146,25 @@ class range(object):
 
     def __eq__(self, other):
         if isinstance(self, other.__class__):
-            return (
-                # empty range
-                (not self and not other)
-                # same values
-                or self._len == other.__len__()
-                and
-                (
-                    (
-                        # if there is only one element, only the first
-                        # aka start counts
-                        self._len == 1
-                        and self._start == other.start
-                    ) or (
-                        # first value must match
-                        self._start == other.start
-                        # distance between values must match
-                        and self._step == other.step
-                        # Do not test final element - we've got the same number of
-                        # elements, at same distance, from same start, giving the
-                        # same end sequence.
-                    )
-                )
-            )
+            if self is other:
+                return True
+            # unequal number of elements
+            # check this first to imply other features
+            # NOTE: call other.__len__ to avoid OverFlow
+            elif self._len != other.__len__():
+                return False
+            # empty sequences
+            elif not self:
+                return True
+            # first element must match
+            elif self._start != other.start:
+                return False
+            # just that one element
+            elif self._len == 1:
+                return True
+            # final element is implied by same start, count and step
+            else:
+                return self._step == other.step
         # specs assert that range objects may ONLY equal to range objects
         return NotImplemented
 
