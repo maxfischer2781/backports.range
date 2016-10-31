@@ -23,6 +23,8 @@ except NameError:
 
 # noinspection PyShadowingBuiltins,PyPep8Naming
 class range(object):
+    __slots__ = ('__weakref__', '_start', '_stop', '_step', '_len', '_bool')
+
     def __init__(self, start_stop, stop=None, step=None):
         """
         Object that produces a sequence of integers from start (inclusive) to
@@ -249,6 +251,14 @@ class range(object):
         if self.step != 1:
             return '%s(%s, %s, %s)' % (self.__class__.__name__, self._start, self._stop, self._step)
         return '%s(%s, %s)' % (self.__class__.__name__, self._start, self._stop)
+
+    # Pickling
+    def __getstate__(self):
+        return self._start, self._stop, self._step, self._len
+
+    def __setstate__(self, state):
+        self._start, self._stop, self._step, self._len = state
+        self._bool = bool(self._len)
 
 
 class range_iterator(object):
