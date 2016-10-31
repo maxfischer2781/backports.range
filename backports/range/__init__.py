@@ -130,7 +130,7 @@ class range(object):
         if val < 0:
             val += self._len
         if val < 0 or val >= self._len:
-            raise IndexError('%s object index out of range %s' % (self, item))
+            raise IndexError('range object index out of range')
         return self._start + self._step * val
 
     def __iter__(self):
