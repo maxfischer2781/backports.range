@@ -285,6 +285,10 @@ class range_iterator(object):
     else:
         __next__ = _next
 
+    def __length_hint__(self):
+        # both stop and current are offset by 1 which cancels out here
+        return self._stop - self._current
+
     # Pickling
     def __getstate__(self):
         return self._start, self._stop, self._step, self._current
