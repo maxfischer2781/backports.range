@@ -201,6 +201,7 @@ class range(object):
             return val
 
     def _contains_int(self, integer):
+        # NOTE: integer is not a C int but a Py long
         if self._step == 1:
             return self._start <= integer < self._stop
         elif self._step > 0:
