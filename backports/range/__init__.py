@@ -208,9 +208,9 @@ class range(object):
         if self._step == 1:
             return self._start <= integer < self._stop
         elif self._step > 0:
-            return self._stop > integer >= self._start and integer % self._step == self._start % self._step
+            return self._stop > integer >= self._start and not (integer - self._start) % self._step
         elif self._step < 0:
-            return self._stop < integer <= self._start and integer % self._step == self._start % self._step
+            return self._stop < integer <= self._start and not (integer - self._start) % self._step
 
     def index(self, value):
         trivial_test_val = self._trivial_test_type(value)
