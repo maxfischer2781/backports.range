@@ -175,6 +175,8 @@ class range(object):
     def __lt__(self, other):
         return NotImplemented
 
+    __gt__ = __le__ = __ge__ = __lt__
+
     def __contains__(self, item):
         # specs use fast comparison ONLY for pure ints
         # subtypes are not allowed, so that custom __eq__ can be used
