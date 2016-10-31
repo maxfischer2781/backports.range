@@ -262,8 +262,10 @@ class range(object):
 
 
 class range_iterator(object):
-    """Iterator over a `range`, for internal use only"""
+    __slots__ = ('_start', '_stop', '_step', '_current')
+
     def __init__(self, start, step, count):
+        """Iterator over a `range`, for internal use only"""
         self._start = start
         self._step = step
         self._stop = count - 1
@@ -282,6 +284,13 @@ class range_iterator(object):
         next = _next
     else:
         __next__ = _next
+
+    # Pickling
+    def __getstate__(self):
+        return self._start, self._stop, self._step, self._current
+
+    def __setstate__(self, state):
+        self._start, self._stop, self._step, self._current = state
 
 # register at ABCs
 # do not use decorators to play nice with Cython
