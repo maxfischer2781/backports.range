@@ -59,6 +59,9 @@ def pyrange_reversed(start, stop, step):
     return pyrange(stop - step, start - step, -step)
 
 
+# Unittest adopted from:
+# https://github.com/python/cpython/blob/3.6/Lib/test/test_range.py
+
 # noinspection PyCompatibility,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyTypeChecker,PyTypeChecker,PyTypeChecker,PyTypeChecker,PyTypeChecker,PyTypeChecker,PyTypeChecker
 class RangeTest(unittest.TestCase):
     range_type = backport_range
