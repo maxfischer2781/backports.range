@@ -1,7 +1,6 @@
 """The range class from Python3"""
 from __future__ import division
 import operator
-import sys
 
 try:
     import collections.abc as _abc
@@ -19,6 +18,20 @@ try:
     _int__eq__s = set((int.__eq__, long.__eq__))
 except NameError:
     _int__eq__s = set((int.__eq__,))
+
+# check whether this file is being compiled and must follow Cython standards
+try:
+    import cython as _cython
+    if not _cython.compiled:
+        raise ImportError
+except ImportError:
+    CYTHON_COMPILED = False  # noqa
+else:
+    CYTHON_COMPILED = True  # noqa
+
+# need iterator in separate file to avoid import loop
+# cython iterator uses python iterator for pickling
+from .pyrange_iterator import range_iterator
 
 
 # noinspection PyShadowingBuiltins,PyPep8Naming
@@ -81,10 +94,10 @@ class range(object):
     def step(self):
         return self._step
 
-    def __bool__(self):
+    def __nonzero__(self):
         return self._bool
 
-    __nonzero__ = __bool__
+    __bool__ = __nonzero__
 
     # NOTE:
     # We repeatedly use self._len instead of len(self)!
@@ -137,23 +150,27 @@ class range(object):
     def __iter__(self):
         # Let's reinvent the wheel again...
         # We *COULD* use xrange here, but that leads to OverflowErrors etc.
-        return range_iterator(self._start, self.step, self._len)
+        return range_iter(self._start, self.step, self._len)
 
     def __reversed__(self):
         # this is __iter__ in reverse, *by definition*
         if self._len:
-            return range_iterator(self[-1], -self.step, self._len)
+            return range_iter(self[-1], -self.step, self._len)
         else:
-            return range_iterator(0, 1, 0)
+            return range_iter(0, 1, 0)
 
-    def __eq__(self, other):
+    # Comparison Methods
+    # Cython requires the use of __richcmp__ *only* and fails
+    # when __eq__ etc. are present.
+    # Each __OP__ is defined as __py_OP__ and rebound as required.
+    def __py_eq__(self, other):
         if isinstance(self, other.__class__):
             if self is other:
                 return True
             # unequal number of elements
-            # check this first to imply other features
-            # NOTE: call other.__len__ to avoid OverFlow
-            elif self._len != other.__len__():
+            # check this first to imply some more features
+            # NOTE: call other._len to avoid OverFlow
+            elif self._len != other._len:
                 return False
             # empty sequences
             elif not self:
@@ -170,14 +187,35 @@ class range(object):
         # specs assert that range objects may ONLY equal to range objects
         return NotImplemented
 
-    def __ne__(self, other):
+    def __py_ne__(self, other):
         return not self == other
 
     # order comparisons are forbidden
-    def __lt__(self, other):
+    def __py_ord__(self, other):
+        """__gt__ = __le__ = __ge__ = __lt__ = __py_ord__"""
         return NotImplemented
 
-    __gt__ = __le__ = __ge__ = __lt__
+    def __richcmp__(self, other, comp_opcode):  # pragma: no cover
+        # Cython:
+        # Do not rely on the first parameter of these methods, being "self" or the right type.
+        # The types of both operands should be tested before deciding what to do.
+        if not isinstance(self, range):
+            # if other is not of type(self), we can't compare it anyways
+            return NotImplemented
+        # Comparison opcodes:
+        # < <= == != > >=
+        # 0  1  2  3 4  5
+        if comp_opcode == 2:
+            return self.__py_eq__(other)
+        elif comp_opcode == 3:
+            return not self.__py_eq__(other)
+        else:
+            return NotImplemented
+
+    if not CYTHON_COMPILED:
+        __eq__ = __py_eq__
+        __ne__ = __py_ne__
+        __gt__ = __le__ = __ge__ = __lt__ = __py_ord__
 
     def __contains__(self, item):
         # specs use fast comparison ONLY for pure ints
@@ -214,7 +252,7 @@ class range(object):
             return self._stop < integer <= self._start and not (integer - self._start) % self._step
 
     def index(self, value):
-        trivial_test_val = self._trivial_test_type(value)
+        trivial_test_val = range._trivial_test_type(value)
         if trivial_test_val is not None:
             if self._contains_int(trivial_test_val):
                 return (value - self._start) // self._step
@@ -226,7 +264,7 @@ class range(object):
         raise ValueError('%r is not in range' % value)
 
     def count(self, value):
-        trivial_test_val = self._trivial_test_type(value)
+        trivial_test_val = range._trivial_test_type(value)
         if trivial_test_val is not None:
             return 1 if self._contains_int(trivial_test_val) else 0
         # take the slow path, compare every single item
@@ -260,41 +298,19 @@ class range(object):
         self._start, self._stop, self._step, self._len = state
         self._bool = bool(self._len)
 
-
-class range_iterator(object):
-    __slots__ = ('_start', '_stop', '_step', '_current')
-
-    def __init__(self, start, step, count):
-        """Iterator over a `range`, for internal use only"""
-        self._start = start
-        self._step = step
-        self._stop = count - 1
-        self._current = -1
-
-    def __iter__(self):
-        return self
-
-    def _next(self):
-        if self._current == self._stop:
-            raise StopIteration
-        self._current += 1
-        return self._start + self._step * self._current
-
-    if sys.version_info < (3,):
-        next = _next
-    else:
-        __next__ = _next
-
-    def __length_hint__(self):
-        # both stop and current are offset by 1 which cancels out here
-        return self._stop - self._current
-
-    # Pickling
-    def __getstate__(self):
-        return self._start, self._stop, self._step, self._current
-
-    def __setstate__(self, state):
-        self._start, self._stop, self._step, self._current = state
+try:
+    # see if we have the Cython compiled long-long-iterator
+    from .cyrange_iter import llrange_iterator
+except ImportError:
+    # if not, expose the python iterator directly
+    range_iter = range_iterator
+else:
+    # if yes, create a factory to pick the best one
+    def range_iter(start, step, count):
+        try:
+            return llrange_iterator(start, step, count)
+        except OverflowError:
+            return range_iterator(start, step, count)
 
 # register at ABCs
 # do not use decorators to play nice with Cython

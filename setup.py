@@ -1,10 +1,38 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 import os
+import sys
 from setuptools import setup, find_packages
 
-with open(os.path.join(os.path.dirname(__file__), 'backports', 'range', 'README.rst')) as readme:
+repo_base = os.path.abspath(os.path.dirname(__file__))
+
+with open(os.path.join(repo_base, 'backports', 'range', 'README.rst')) as readme:
     long_description = readme.read()
+
+cmdclass = {}
+extensions = []
+
+try:
+    import Cython.Distutils
+    from distutils.extension import Extension
+except Exception as err:
+    print('Cannot cythonize: %s' % err, file=sys.stderr)
+else:
+    source_base = os.path.join('backports', 'range')
+    for rel_path in (
+        #os.path.join(source_base, 'pyrange.py'),
+        os.path.join(source_base, 'cyrange_iterator.pyx'),
+    ):
+        mod_path = os.path.splitext(rel_path)[0].replace(os.sep, '.')
+        for compiled_file in (os.path.splitext(rel_path)[0] + ext for ext in ('.so', '.c')):
+            if os.path.isfile(compiled_file):
+                os.unlink(compiled_file)
+        print(mod_path, rel_path)
+        extensions.append(
+            Extension(name=mod_path, sources=[os.path.join(repo_base, rel_path)])
+        )
+    if extensions:
+        cmdclass = {'build_ext': Cython.Distutils.build_ext}
 
 setup(
     name='backports.range',
@@ -36,4 +64,6 @@ setup(
     package_data={'backports': ['range/README.rst', 'range/LICENSE.txt']},
     packages=find_packages(exclude=('backports_*',)),
     test_suite='backports_range_unittests',
-    )
+    ext_modules=extensions,
+    cmdclass=cmdclass,
+)
