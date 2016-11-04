@@ -2,6 +2,7 @@
 from __future__ import with_statement, print_function
 import os
 import sys
+import platform
 from setuptools import setup, find_packages
 
 repo_base = os.path.abspath(os.path.dirname(__file__))
@@ -13,6 +14,8 @@ cmdclass = {}
 extensions = []
 
 try:
+    if platform.python_implementation() != 'CPython':
+        raise NotImplementedError("No Cython support for %r implementation" % platform.python_implementation())
     import Cython.Distutils
     from distutils.extension import Extension
 except Exception as err:
