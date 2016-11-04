@@ -38,11 +38,11 @@ Compatibility
 
 - The following python versions are tested explicitly:
 
-  - python (aka CPython): 2.6, 2.7, 3.2, 3.3, 3.4, 3.5
+  - cpython (aka python): 2.6, 2.7, 3.2, 3.3, 3.4, 3.5
+
+  - Cython: All versions supported by cpython
 
   - pypy: pypy2, pypy3
-
-- There is no official support for Cython yet.
 
 - Some features depending on language features or other modules may not be
   available or work differently:
