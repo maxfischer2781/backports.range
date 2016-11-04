@@ -19,9 +19,9 @@ Compatibility
 
 - The following python versions are tested explicitly:
 
-   - python (aka CPython): 2.6, 2.7, 3.2, 3.3, 3.4, 3.5
+  - python (aka CPython): 2.6, 2.7, 3.2, 3.3, 3.4, 3.5
 
-   - pypy: pypy2, pypy3
+  - pypy: pypy2, pypy3
 
 - There is no official support for Cython yet.
 
@@ -32,6 +32,7 @@ Compatibility
 
 Notice
 ------
-This packages includes parts of the python documentation (http://www.python.org)
-Copyright (C) 2001-2016 Python Software Foundation.
-Licensed under the Python Software Foundation License.
+
+    This packages includes parts of the python documentation (http://www.python.org)
+    Copyright (C) 2001-2016 Python Software Foundation.
+    Licensed under the Python Software Foundation License.
