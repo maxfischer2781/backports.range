@@ -38,3 +38,4 @@ script:
 
 after_success:
   - if [[ -n "$COVERAGE_SUPPORTED" ]]; then coverage report && codecov; fi
+  - ./benchmark.sh
