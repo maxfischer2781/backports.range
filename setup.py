@@ -19,7 +19,7 @@ try:
     import Cython.Distutils
     from distutils.extension import Extension
 except Exception as err:
-    print('Cannot cythonize: %s' % err, file=sys.stderr)
+    print('Cannot cythonize "backports.range": %s' % err, file=sys.stderr)
 else:
     source_base = os.path.join('backports', 'range')
     for rel_path in (
