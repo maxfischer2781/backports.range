@@ -13,9 +13,9 @@ except ImportError:
     from itertools import izip_longest
 
 # default integer __eq__
-# python 2 has TWO separate integer types we need to check
+# python 2 has THREE separate integer type comparisons we need to check
 try:
-    _int__eq__s = set((int.__eq__, long.__eq__))
+    _int__eq__s = set((int.__eq__, long.__eq__, bool.__eq__))
 except NameError:
     _int__eq__s = set((int.__eq__,))
 
