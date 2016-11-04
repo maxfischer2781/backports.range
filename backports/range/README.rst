@@ -80,7 +80,7 @@ Cython Optimizations
 All `Cython`_ optimizations are optional.
 They are automatically made available if `Cython`_ is installed.
 
-- Iteration of C
+- Iteration in the C long long range `[-9223372036854775807, 9223372036854775807]`
 
 Compatibility
 -------------
