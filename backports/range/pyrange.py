@@ -1,6 +1,7 @@
 """The range class from Python3"""
 from __future__ import division
 import operator
+import platform
 
 try:
     import collections.abc as _abc
@@ -300,6 +301,9 @@ class range(object):
 
 try:
     # see if we have the Cython compiled long-long-iterator
+    # ALWAYS use pure-python for incompatible implementations
+    if platform.python_implementation() != 'CPython':
+        raise ImportError
     from .cyrange_iterator import llrange_iterator
 except ImportError:
     # if not, expose the python iterator directly
