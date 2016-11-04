@@ -9,6 +9,7 @@ exclude_lines =
     # default
     pragma: no cover
     # python debug/internals
+    coverage: cython compiled only
     def __repr__
     if __debug__:
     assert

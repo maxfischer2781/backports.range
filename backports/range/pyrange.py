@@ -22,11 +22,11 @@ except NameError:
 # check whether this file is being compiled and must follow Cython standards
 try:
     import cython as _cython
-    if not _cython.compiled:
+    if not _cython.compiled:  # pragma: no cover
         raise ImportError
 except ImportError:
     CYTHON_COMPILED = False  # noqa
-else:
+else:  # coverage: cython compiled only
     CYTHON_COMPILED = True  # noqa
 
 # need iterator in separate file to avoid import loop
