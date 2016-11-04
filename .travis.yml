@@ -28,7 +28,7 @@ matrix:
   - python: "nightly"
 
 before_script:
-  - if [[ -n "CYTHONIZE" ]]; then pip install cython; fi
+  - if [[ -n "$CYTHONIZE" ]]; then pip install cython; fi
   - if [[ $TRAVIS_PYTHON_VERSION != "3.2" ]]; then COVERAGE_SUPPORTED="Yes"; echo "coverage reports enabled"; fi
   - if [[ -n "$COVERAGE_SUPPORTED" ]]; then pip install codecov; fi
   - export COVERAGE_PROCESS_START=$(pwd)/.coveragerc
