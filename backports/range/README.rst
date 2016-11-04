@@ -2,7 +2,9 @@
 backports.range class from Python 3.3
 +++++++++++++++++++++++++++++++++++++
 
-|pypi| |travis| |codecov|
+|travis| |codecov|
+
+|pypi| |pypistatus| |pypiversions| |pypiimplementations|
 
 Backports the python 3.X `range` class as a replacement for python 2.X `range`
 functions. The `range` class is similar to `xrange` in that its values are
@@ -17,6 +19,18 @@ it supports indexing, membership testing and other sequence features.
 .. |pypi| image:: https://img.shields.io/pypi/v/backports.range.svg
     :target: https://pypi.python.org/pypi/backports.range
     :alt: PyPI Package
+
+.. |pypistatus| image:: https://img.shields.io/pypi/status/backports.range.svg
+    :target: https://pypi.python.org/pypi/backports.range
+    :alt: PyPI Status
+
+.. |pypiversions| image:: https://img.shields.io/pypi/pyversions/backports.range.svg
+    :target: https://pypi.python.org/pypi/backports.range
+    :alt: PyPI Versions
+
+.. |pypiimplementations| image:: https://img.shields.io/pypi/implementation/backports.range.svg
+    :target: https://pypi.python.org/pypi/backports.range
+    :alt: PyPI Implementations
 
 .. |codecov| image:: https://codecov.io/gh/maxfischer2781/cpy2py/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/maxfischer2781/cpy2py
