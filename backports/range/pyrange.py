@@ -300,7 +300,7 @@ class range(object):
 
 try:
     # see if we have the Cython compiled long-long-iterator
-    from .cyrange_iter import llrange_iterator
+    from .cyrange_iterator import llrange_iterator
 except ImportError:
     # if not, expose the python iterator directly
     range_iter = range_iterator
