@@ -45,9 +45,9 @@ Compatibility
 - There is no official support for Cython yet.
 
 - Some features depending on language features or other modules may not be
-  available:
+  available or work differently:
 
-   - Comparing `range` against other types does not throw `TypeError` in python 2.X.
+  - Comparing `range` against other types does not throw `TypeError` in python 2.X.
 
 Notice
 ------
