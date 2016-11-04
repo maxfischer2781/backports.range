@@ -1,10 +1,29 @@
++++++++++++++++++++++++++++++++++++++
 backports.range class from Python 3.3
-=====================================
++++++++++++++++++++++++++++++++++++++
+
+|pypi| |travis| |codecov|
 
 Backports the python 3.X `range` class as a replacement for python 2.X `range`
 functions. The `range` class is similar to `xrange` in that its values are
 computed on demand - however, the `range` class is actually a lazy sequence:
 it supports indexing, membership testing and other sequence features.
+
+
+.. |travis| image:: https://travis-ci.org/maxfischer2781/backports.range.svg?branch=master
+    :target: https://travis-ci.org/maxfischer2781/backports.range
+    :alt: Unit Tests
+
+.. |pypi| image:: https://img.shields.io/pypi/v/backports.range.svg
+    :target: https://pypi.python.org/pypi/backports.range
+    :alt: PyPI Package
+
+.. |codecov| image:: https://codecov.io/gh/maxfischer2781/cpy2py/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/maxfischer2781/cpy2py
+  :alt: Code Coverage
+
+.. contents:: **Table of Contents**
+    :depth: 2
 
 Features
 --------
