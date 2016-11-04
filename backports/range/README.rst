@@ -31,6 +31,15 @@ Features
 This implementation provides all features introduced and documented in
 python 3.3.
 
+All objects are available by default in a pure python implementation.
+In addition, there are optional, optimized implementations using `Cython`_.
+
+Cython Optimizations
+^^^^^^^^^^^^^^^^^^^^
+
+All `Cython`_ optimizations are optional.
+They are automatically made available if `Cython`_ is installed.
+
 Compatibility
 -------------
 
@@ -55,3 +64,5 @@ Notice
     This packages includes parts of the python documentation (http://www.python.org)
     Copyright (C) 2001-2016 Python Software Foundation.
     Licensed under the Python Software Foundation License.
+
+.. _Cython: http://cython.org
