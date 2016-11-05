@@ -311,18 +311,14 @@ except ImportError:
 else:
     # if yes, create a factory to pick the best one
     def range_iter(start, step, count):
-        # C long long must support inclusive range [-9223372036854775807, +9223372036854775807]
+        # C long long guaranteed to support inclusive range [-9223372036854775807, +9223372036854775807]
         if (
                 -9223372036854775807 <= start <= 9223372036854775807
                 and -9223372036854775807 <= step <= 9223372036854775807
                 and -9223372036854775807 <= count <= 9223372036854775807
                 and -9223372036854775807 <= start + step * count <= 9223372036854775807
         ):
-            try:
-                return llrange_iterator(start, step, count)
-            except OverflowError:
-                print(start, step, count)
-                raise
+            return llrange_iterator(start, step, count)
         return range_iterator(start, step, count)
 
 # register at ABCs
