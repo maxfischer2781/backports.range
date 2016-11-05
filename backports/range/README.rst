@@ -46,6 +46,15 @@ Features
 
 This implementation provides all features introduced and documented in
 python 3.3.
+The `range` class is available as `backports.range.range` -
+you can import it to a separate name or replace the builtin `range` and/or `xrange`.
+
+```
+from backports.range import range as range3
+print(','.join(range3(5, 11))
+range_sequence = range3(-50000, 50001)
+print(50000 in range_sequence, 50001 in range_sequence)
+```
 
 All objects are available by default in a pure python implementation.
 In addition, there are optional, optimized implementations using `Cython`_.
