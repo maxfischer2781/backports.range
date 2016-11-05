@@ -62,48 +62,12 @@ def pyrange_reversed(start, stop, step):
 # Unittest adopted from:
 # https://github.com/python/cpython/blob/3.6/Lib/test/test_range.py
 
+
 # noinspection PyCompatibility,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyTypeChecker,PyTypeChecker,PyTypeChecker,PyTypeChecker,PyTypeChecker,PyTypeChecker,PyTypeChecker
 class RangeTest(unittest.TestCase):
     range_type = backport_range
-    # assert backports
-    if not hasattr(unittest.TestCase, 'assertIn'):
-        def assertIn(self, member, container, msg=None):
-            """Just like self.assertTrue(a in b), but with a nicer default message."""
-            if member not in container:
-                standardMsg = '%s not found in %s' % (
-                    unittest.case.safe_repr(member),
-                    unittest.case.safe_repr(container)
-                )
-                self.fail(self._formatMessage(msg, standardMsg))
 
-    if not hasattr(unittest.TestCase, 'assertNotIn'):
-        def assertNotIn(self, member, container, msg=None):
-            """Just like self.assertTrue(a not in b), but with a nicer default message."""
-            if member in container:
-                standardMsg = '%s unexpectedly found in %s' % (
-                    unittest.case.safe_repr(member),
-                    unittest.case.safe_repr(container)
-                )
-                self.fail(self._formatMessage(msg, standardMsg))
-
-    if not hasattr(unittest.TestCase, 'assertIs'):
-        def assertIs(self, expr1, expr2, msg=None):
-            """Just like self.assertTrue(a is b), but with a nicer default message."""
-            if expr1 is not expr2:
-                standardMsg = '%s is not %s' % (
-                    unittest.case.safe_repr(expr1),
-                    unittest.case.safe_repr(expr2)
-                )
-                self.fail(self._formatMessage(msg, standardMsg))
-
-    if not hasattr(unittest.TestCase, 'subTest'):
-        @contextlib.contextmanager
-        def subTest(self, msg=None, **params):
-            """Dummy Placeholders"""
-            yield None
-            return
-
-    # original unittests
+    # original py3.6 unittests
     def assert_iterators_equal(self, xs, ys, test_id, limit=None):
         # check that an iterator xs matches the expected results ys,
         # up to a given limit.

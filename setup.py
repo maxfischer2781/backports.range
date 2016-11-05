@@ -67,6 +67,7 @@ setup(
     package_data={'backports': ['range/README.rst', 'range/LICENSE.txt']},
     packages=find_packages(exclude=('backports_*',)),
     test_suite='backports_range_unittests',
+    tests_require=['unittest2'],
     ext_modules=extensions,
     cmdclass=cmdclass,
 )
