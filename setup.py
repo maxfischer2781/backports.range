@@ -32,14 +32,14 @@ else:
                 os.unlink(compiled_file)
         print(mod_path, rel_path)
         extensions.append(
-            Extension(name=mod_path, sources=[os.path.join(repo_base, rel_path)])
+            Extension(name=mod_path, sources=[rel_path])
         )
     if extensions:
         cmdclass = {'build_ext': Cython.Distutils.build_ext}
 
 setup(
     name='backports.range',
-    version='3.3.1',
+    version='3.3.2',
     description='Backport of the python 3.X `range` class',
     long_description=long_description,
     author='Max Fischer',
@@ -64,7 +64,10 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Topic :: Software Development :: Libraries',
         ],
-    package_data={'backports': ['range/README.rst', 'range/LICENSE.txt']},
+    package_data={
+        'backports':
+            ['range/README.rst', 'range/LICENSE.txt']
+    },
     packages=find_packages(exclude=('backports_*',)),
     test_suite='backports_range_unittests',
     tests_require=['unittest2'],
