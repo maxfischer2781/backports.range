@@ -13,7 +13,6 @@ from __future__ import print_function
 import sys
 import pickle
 import itertools
-import contextlib
 from backports.range import range as backport_range
 
 # Backports of testing infrastructure

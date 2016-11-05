@@ -39,7 +39,7 @@ else:
 
 setup(
     name='backports.range',
-    version='3.3.0',
+    version='3.3.1',
     description='Backport of the python 3.X `range` class',
     long_description=long_description,
     author='Max Fischer',

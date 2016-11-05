@@ -66,7 +66,7 @@ Benchmark for ``[a for a in range(...)]``
 =============== ================= ==================
 Interpreter     vs Builtin range  vs Builtin xrange
 =============== ================= ==================
-Py2                           100                 50
+Py2                      50 - 100            20 - 50
 Py3                       25 - 30                ---
 Py2 + Cython                3 - 6            1.0 - 3
 Py3 + Cython              1.1 - 3                ---
