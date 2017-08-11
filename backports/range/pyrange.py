@@ -20,6 +20,12 @@ try:
 except NameError:
     _int__eq__s = set((int.__eq__,))
 
+# get the builtin type of range class
+if type(range(1)) == range:
+    _builtin_range_class = range
+else:
+    _builtin_range_class = None
+
 # check whether this file is being compiled and must follow Cython standards
 try:
     import cython as _cython
@@ -177,7 +183,7 @@ class range(object):
         if isinstance(self, other.__class__):
             # unequal number of elements
             # check this first to imply some more features
-            # NOTE: call other._len to avoid OverFlow
+            # NOTE: call other._len to avoid OverflowError
             if self._len != other._len:
                 return False
             # empty ranges are always equal
@@ -186,12 +192,16 @@ class range(object):
             # first element must always match
             elif self._start != other.start:
                 return False
-            # just that one element
+            # just that one element, step does not matter
             elif self._len == 1:
                 return True
             # final element is implied by same start, count and step
             else:
                 return self._step == other.step
+        elif _builtin_range_class is not None and isinstance(other, _builtin_range_class):
+            # NOTE: we cannot safely check len(other) due to OverflowError
+            # make sure we describe the same range by *effective* start, stop and stride
+            return self.start == other.start and self.step == other.step and self[-1] == other[-1]
         # specs assert that range objects may ONLY equal to range objects
         return NotImplemented
 
