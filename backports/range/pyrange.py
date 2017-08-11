@@ -113,33 +113,40 @@ class range(object):
         # There are no custom slices allowed, so we can do a fast check
         # see: http://stackoverflow.com/q/39971030/5349916
         if item.__class__ is slice:
-            # we cannot use item.indices since that may overflow in py2.X...
-            start, stop, stride, max_len = item.start, item.stop, item.step, self._len
-            # nothing to slice on
-            if not max_len:
-                return self.__class__(0, 0)
-            if start is None:  # unset, use self[0]
-                new_start = self._start
-            else:
-                start_idx = operator.index(start)
-                if start_idx >= max_len:  # cut off out-of-range
-                    new_start = self._stop
-                elif start_idx < -max_len:
+            max_len = self._len
+            try:
+                start_idx, stop_idx, slice_stride = item.indices(max_len)
+            except OverflowError:
+                # We cannot use item.indices since that may overflow in py2.X...
+                slice_start, slice_stop, slice_stride, max_len = item.start, item.stop, item.step, self._len
+                # nothing to slice on
+                if not max_len:
+                    return self.__class__(0, 0)
+                if slice_start is None:  # slice open to left as in [None:12312]
                     new_start = self._start
                 else:
-                    new_start = self[start_idx]
-            if stop is None:
-                new_stop = self._stop
-            else:
-                stop_idx = operator.index(stop)
-                if stop_idx >= max_len:
+                    start_idx = operator.index(slice_start)
+                    if start_idx >= max_len:  # cut off out-of-range
+                        new_start = self._stop
+                    elif start_idx < -max_len:
+                        new_start = self._start
+                    else:
+                        new_start = self[start_idx]
+                if slice_stop is None:  # slice open to right as in [1213:None]
                     new_stop = self._stop
-                elif stop_idx < -max_len:
-                    new_stop = self._start
                 else:
-                    new_stop = self[stop_idx]
-            stride = 1 if stride is None else stride
-            return self.__class__(new_start, new_stop, self.step * stride)
+                    stop_idx = operator.index(slice_stop)
+                    if stop_idx >= max_len:
+                        new_stop = self._stop
+                    elif stop_idx < -max_len:
+                        new_stop = self._start
+                    else:
+                        new_stop = self[stop_idx]
+                slice_stride = 1 if slice_stride is None else slice_stride
+            else:
+                new_start = self._start + self._step * start_idx
+                new_stop = self._start + self._step * stop_idx
+            return self.__class__(new_start, new_stop, self.step * slice_stride)
         # check type first
         val = operator.index(item)
         if val < 0:
