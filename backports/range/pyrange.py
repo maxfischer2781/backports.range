@@ -114,14 +114,14 @@ class range(object):
         # see: http://stackoverflow.com/q/39971030/5349916
         if item.__class__ is slice:
             max_len = self._len
+            # nothing to slice on
+            if not max_len:
+                return self.__class__(0, 0)
             try:
                 start_idx, stop_idx, slice_stride = item.indices(max_len)
             except OverflowError:
                 # We cannot use item.indices since that may overflow in py2.X...
                 slice_start, slice_stop, slice_stride, max_len = item.start, item.stop, item.step, self._len
-                # nothing to slice on
-                if not max_len:
-                    return self.__class__(0, 0)
                 if slice_start is None:  # slice open to left as in [None:12312]
                     new_start = self._start
                 else:
