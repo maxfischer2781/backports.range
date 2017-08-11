@@ -172,18 +172,18 @@ class range(object):
     # when __eq__ etc. are present.
     # Each __OP__ is defined as __py_OP__ and rebound as required.
     def __py_eq__(self, other):
+        if self is other:
+            return True
         if isinstance(self, other.__class__):
-            if self is other:
-                return True
             # unequal number of elements
             # check this first to imply some more features
             # NOTE: call other._len to avoid OverFlow
-            elif self._len != other._len:
+            if self._len != other._len:
                 return False
-            # empty sequences
-            elif not self:
+            # empty ranges are always equal
+            elif not self._bool:
                 return True
-            # first element must match
+            # first element must always match
             elif self._start != other.start:
                 return False
             # just that one element
