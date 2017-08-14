@@ -356,16 +356,33 @@ class range(object):
         elif self._step < 0:
             return self._stop < integer <= self._start and not (integer - self._start) % self._step
 
-    def index(self, value):
-        trivial_test_val = range._trivial_test_type(value)
-        if trivial_test_val is not None:
-            if self._contains_int(trivial_test_val):
-                return (value - self._start) // self._step
-        else:
+    def index(self, value, start=None, stop=None):
+        """Return first index of ``value``. Raises :py:exc:`ValueError` if ``value`` is not in the range."""
+        try:
+            native_value = operator.index(value)
+        except TypeError:
             # take the slow path, compare every single item
-            for idx, self_item in enumerate(self):
+            for index, self_item in enumerate(self):
                 if self_item == value:
-                    return idx
+                    # get the obvious use case done first
+                    if start is None and stop is None:
+                        return index
+                    # do the uncommon test thoroughly
+                    else:
+                        start = 0 if start is None else start + self._len if start < 0 else start
+                        stop = self._len if stop is None else stop + self._len if stop < 0 else stop
+                        if start <= index < stop:
+                            return index
+        else:
+            index = (native_value - self._start) // self._step
+            if self._contains_int(native_value):
+                if start is None and stop is None:
+                    return index
+                else:
+                    start = 0 if start is None else start + self._len if start < 0 else start
+                    stop = self._len if stop is None else stop + self._len if stop < 0 else stop
+                    if start <= index < stop:
+                        return index
         raise ValueError('%r is not in range' % value)
 
     def count(self, value):
