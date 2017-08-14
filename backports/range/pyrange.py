@@ -200,8 +200,11 @@ class range(object):
                 return self._step == other.step
         elif _builtin_range_class is not None and isinstance(other, _builtin_range_class):
             # NOTE: we cannot safely check len(other) due to OverflowError
+            # for an empty range, specifics do not matter
+            if not self._bool:
+                return not bool(other)
             # make sure we describe the same range by *effective* start, stop and stride
-            return self.start == other.start and self.step == other.step and self[-1] == other[-1]
+            return bool(other) and self.start == other.start and self.step == other.step and self[-1] == other[-1]
         # specs assert that range objects may ONLY equal to range objects
         return NotImplemented
 
