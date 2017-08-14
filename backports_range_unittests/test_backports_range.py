@@ -22,14 +22,16 @@ class CustomRangeTest(unittest.TestCase):
         """Compatibility: backport range equal to builtin range"""
         init_args = (
             # start only
-            (27,), (15,), (128,), (-127,),
+            (15,), (128,), (-127,),
             # default step ranges
             (1, 2), (-50, 50, 1), (-256, -255),
+            # C long long barrier
             (-9223372036854775809, -9223372036854775807), (9223372036854775807, 9223372036854775809),
-            # empty
+            # empty ranges
             (1, 1, 1), (20, 0, 1), (0, 50, -1), (0, 0),
             # regular ranges
-            (1, 120, 5))
+            (1, 120, 5), (1, 119, 5), (-27, 0, 2), (0, -27, 2)
+        )
         for args_a, args_b in itertools.product(init_args, repeat=2):
             with self.subTest(init_a=args_a, init_b=args_b):
                 # conform to builtin equality rules
