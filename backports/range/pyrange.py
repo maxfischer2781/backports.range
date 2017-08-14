@@ -334,17 +334,6 @@ class range(object):
             # take the slow path, compare every single item
             return any(self_item == item for self_item in self)
 
-    @staticmethod
-    def _trivial_test_type(value):
-        try:
-            # we can contain only int-like objects
-            val = operator.index(value)
-        except (TypeError, ValueError, AttributeError):
-            # however, an object may compare equal to our items
-            return None
-        else:
-            return val
-
     def _contains_int(self, integer):
         # NOTE: integer is not a C int but a Py long
         if self._step == 1:
