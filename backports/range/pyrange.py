@@ -383,9 +383,9 @@ class range(object):
         raise ValueError('%r is not in range' % value)
 
     def count(self, value):
-        trivial_test_val = range._trivial_test_type(value)
-        if trivial_test_val is not None:
-            return 1 if self._contains_int(trivial_test_val) else 0
+        # Note: objects are never coerced into other types for comparison
+        if type(value).__eq__ in _int__eq__s:
+            return int(self._contains_int(value))
         # take the slow path, compare every single item
         _count = 0
         for idx, self_item in enumerate(self):
