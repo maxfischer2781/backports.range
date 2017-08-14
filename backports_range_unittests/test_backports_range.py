@@ -62,11 +62,19 @@ class CustomRangeTest(unittest.TestCase):
 
             def __eq__(self, other):
                 return self.value == other
+
+        class AlwaysEqual(object):
+            def __eq__(self, other):
+                return True
+
+        class NeverEqual(object):
+            def __eq__(self, other):
+                return False
         for test_range in ranges:
             # test int and thing-that-behaves-like-int-but-is-not
+            test_length = len(test_range)
             for cls in (int, Wrapper):
                 with self.subTest(test_range=test_range, cls=cls):
-                    test_length = len(test_range)
                     for index in itertools.chain(backport_range(0, test_length), backport_range(-test_length, 0, -1)):
                         self.assertEqual(
                             test_range.index(cls(test_range[index])),
@@ -84,6 +92,16 @@ class CustomRangeTest(unittest.TestCase):
                             test_range.index(cls(test_range[index]), None, test_length),
                             self._normalize_index(index, test_length)
                         )
+                        if index != 0:
+                            self.assertEqual(
+                                test_range.index(cls(test_range[index]), index - 1, test_length),
+                                self._normalize_index(index, test_length)
+                            )
+                        if index != -1:
+                            self.assertEqual(
+                                test_range.index(cls(test_range[index]), index, index + 1),
+                                self._normalize_index(index, test_length)
+                            )
                     for index in itertools.chain(backport_range(0, test_length), backport_range(-test_length, -1, -1)):
                         with self.assertRaises(ValueError):
                             test_range.index(cls(test_range[index]), index + 1)
@@ -93,3 +111,19 @@ class CustomRangeTest(unittest.TestCase):
                             test_range.index(cls(test_range[index]), index, index)
                         with self.assertRaises(ValueError):
                             test_range.index(cls(test_range[index]), index + 1, index)
+            # fake value types
+            for idx in backport_range(1, test_length - 1):
+                self.assertEqual(test_range.index(AlwaysEqual(), idx), idx)
+                self.assertEqual(test_range.index(AlwaysEqual(), 0, idx), 0)
+            # empty range never contains anything
+            with self.assertRaises(ValueError):
+                test_range.index(AlwaysEqual(), 0, 0)
+            with self.assertRaises(ValueError):
+                test_range.index(AlwaysEqual(), test_length, test_length)
+            with self.assertRaises(ValueError):
+                test_range.index(AlwaysEqual(), 500, 500000)
+            # unequal to any value
+            with self.assertRaises(ValueError):
+                test_range.index(NeverEqual())
+            with self.assertRaises(ValueError):
+                test_range.index(NeverEqual(), 0, test_length)
