@@ -55,32 +55,41 @@ class CustomRangeTest(unittest.TestCase):
             backport_range(10), backport_range(5, 15), backport_range(0, -10, -1),
             backport_range(-9223372036854775810, -9223372036854775807)
         ]
+
+        class Wrapper(object):
+            def __init__(self, value):
+                self.value = value
+
+            def __eq__(self, other):
+                return self.value == other
         for test_range in ranges:
-            with self.subTest(test_range=test_range):
-                test_length = len(test_range)
-                for index in itertools.chain(backport_range(0, test_length), backport_range(-test_length, 0, -1)):
-                    self.assertEqual(
-                        test_range.index(test_range[index]),
-                        self._normalize_index(index, test_length)
-                    )
-                    self.assertEqual(
-                        test_range.index(test_range[index], 0, test_length),
-                        self._normalize_index(index, test_length)
-                    )
-                    self.assertEqual(
-                        test_range.index(test_range[index], -test_length, None),
-                        self._normalize_index(index, test_length)
-                    )
-                    self.assertEqual(
-                        test_range.index(test_range[index], None, test_length),
-                        self._normalize_index(index, test_length)
-                    )
-                for index in itertools.chain(backport_range(0, test_length), backport_range(-test_length, -1, -1)):
-                    with self.assertRaises(ValueError):
-                        test_range.index(test_range[index], index + 1)
-                    with self.assertRaises(ValueError):
-                        test_range.index(test_range[index], None, index)
-                    with self.assertRaises(ValueError):
-                        test_range.index(test_range[index], index, index)
-                    with self.assertRaises(ValueError):
-                        test_range.index(test_range[index], index + 1, index)
+            # test int and thing-that-behaves-like-int-but-is-not
+            for cls in (int, Wrapper):
+                with self.subTest(test_range=test_range, cls=cls):
+                    test_length = len(test_range)
+                    for index in itertools.chain(backport_range(0, test_length), backport_range(-test_length, 0, -1)):
+                        self.assertEqual(
+                            test_range.index(cls(test_range[index])),
+                            self._normalize_index(index, test_length)
+                        )
+                        self.assertEqual(
+                            test_range.index(cls(test_range[index]), 0, test_length),
+                            self._normalize_index(index, test_length)
+                        )
+                        self.assertEqual(
+                            test_range.index(cls(test_range[index]), -test_length, None),
+                            self._normalize_index(index, test_length)
+                        )
+                        self.assertEqual(
+                            test_range.index(cls(test_range[index]), None, test_length),
+                            self._normalize_index(index, test_length)
+                        )
+                    for index in itertools.chain(backport_range(0, test_length), backport_range(-test_length, -1, -1)):
+                        with self.assertRaises(ValueError):
+                            test_range.index(cls(test_range[index]), index + 1)
+                        with self.assertRaises(ValueError):
+                            test_range.index(cls(test_range[index]), None, index)
+                        with self.assertRaises(ValueError):
+                            test_range.index(cls(test_range[index]), index, index)
+                        with self.assertRaises(ValueError):
+                            test_range.index(cls(test_range[index]), index + 1, index)
