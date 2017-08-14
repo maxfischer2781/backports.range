@@ -372,15 +372,12 @@ class range(object):
         raise ValueError('%r is not in range' % value)
 
     def count(self, value):
+        """Return number of occurrences of ``value``"""
         # Note: objects are never coerced into other types for comparison
         if type(value).__eq__ in _int__eq__s:
             return int(self._contains_int(value))
         # take the slow path, compare every single item
-        _count = 0
-        for idx, self_item in enumerate(self):
-            if self_item == value:
-                _count += 1
-        return _count
+        return sum(1 for self_item in self if self_item == value)
 
     def __hash__(self):
         # Hash should signify the same sequence of values
