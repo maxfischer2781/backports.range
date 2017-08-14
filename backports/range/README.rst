@@ -45,7 +45,7 @@ Features
 --------
 
 This implementation provides all features introduced and documented in
-python 3.3.
+python 3.6.
 The `range` class is available as `backports.range.range` -
 you can import it to a separate name or replace the builtin `range` and/or `xrange`.
 
@@ -102,11 +102,15 @@ Compatibility
 
 - The following python versions are tested explicitly:
 
-  - CPython (aka python): 2.6, 2.7, 3.2, 3.3, 3.4, 3.5
+  - CPython (aka python): ``2.6``, ``2.7``, ``3.2``, ``3.3``, ``3.4``, ``3.5``, ``3.6``, ``3.7-dev``
 
   - `Cython`_: All versions supported by cpython
 
   - `PyPy`_: pypy2, pypy3
+
+- Some additional features are available for compatibility:
+
+  - Instances of ``backports.range`` compare equal to equivalent ``builtin.range`` instances (new in Python 3.3)
 
 - Some features depending on language features or other modules may not be
   available or work differently:

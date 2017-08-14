@@ -52,22 +52,103 @@ class range(object):
 
         The arguments to the range constructor must be integers (either built-in
         :class:`int` or any object that implements the ``__index__`` special
-        method).  If the *_step* argument is omitted, it defaults to ``1``.
-        If the *_start* argument is omitted, it defaults to ``0``.
-        If *_step* is zero, :exc:`ValueError` is raised.
+        method).  If the *step* argument is omitted, it defaults to ``1``.
+        If the *start* argument is omitted, it defaults to ``0``.
+        If *step* is zero, :exc:`ValueError` is raised.
 
-        For a positive *_step*, the contents of a range ``r`` are determined by the
-        formula ``r[i] = _start + _step*i`` where ``i >= 0`` and
-        ``r[i] < _stop``.
+        For a positive *step*, the contents of a range ``r`` are determined by the
+        formula ``r[i] = start + step*i`` where ``i >= 0`` and
+        ``r[i] < stop``.
 
-        For a negative *_step*, the contents of the range are still determined by
-        the formula ``r[i] = _start + _step*i``, but the constraints are ``i >= 0``
-        and ``r[i] > _stop``.
+        For a negative *step*, the contents of the range are still determined by
+        the formula ``r[i] = start + step*i``, but the constraints are ``i >= 0``
+        and ``r[i] > stop``.
 
         A range object will be empty if ``r[0]`` does not meet the value
         constraint. Ranges do support negative indices, but these are interpreted
         as indexing from the end of the sequence determined by the positive
         indices.
+
+        Ranges containing absolute values larger than :data:`sys.maxsize` are
+        permitted but some features (such as :func:`len`) may raise
+        :exc:`OverflowError`.
+
+        Range examples::
+
+           >>> list(range(10))
+           [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+           >>> list(range(1, 11))
+           [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+           >>> list(range(0, 30, 5))
+           [0, 5, 10, 15, 20, 25]
+           >>> list(range(0, 10, 3))
+           [0, 3, 6, 9]
+           >>> list(range(0, -10, -1))
+           [0, -1, -2, -3, -4, -5, -6, -7, -8, -9]
+           >>> list(range(0))
+           []
+           >>> list(range(1, 0))
+           []
+
+        Ranges implement all of the :ref:`common <typesseq-common>` sequence operations
+        except concatenation and repetition (due to the fact that range objects can
+        only represent sequences that follow a strict pattern and repetition and
+        concatenation will usually violate that pattern).
+
+        The advantage of the :class:`range` type over a regular :class:`list` or
+        :class:`tuple` is that a :class:`range` object will always take the same
+        (small) amount of memory, no matter the size of the range it represents (as it
+        only stores the ``start``, ``stop`` and ``step`` values, as well as its length,
+        calculating individual items and subranges as needed).
+
+        Range objects implement the :class:`collections.abc.Sequence` ABC, and provide
+        features such as containment tests, element index lookup, slicing and
+        support for negative indices (see :ref:`typesseq`):
+
+           >>> r = range(0, 20, 2)
+           >>> r
+           range(0, 20, 2)
+           >>> 11 in r
+           False
+           >>> 10 in r
+           True
+           >>> r.index(10)
+           5
+           >>> r[5]
+           10
+           >>> r[:5]
+           range(0, 10, 2)
+           >>> r[-1]
+           18
+
+        Testing range objects for equality with ``==`` and ``!=`` compares
+        them as sequences.  That is, two range objects are considered equal if
+        they represent the same sequence of values.  (Note that two range
+        objects that compare equal might have different :attr:`~range.start`,
+        :attr:`~range.stop` and :attr:`~range.step` attributes, for example
+        ``range(0) == range(2, 1, 3)`` or ``range(0, 3, 2) == range(0, 4, 2)``.)
+
+        :note: Instances of :py:class:`~backports.range.range` compare
+               based on values even against builtin :py:class:`range` instances.
+
+        .. versionchanged:: 3.7
+            Instances of :py:class:`~backports.range.range` always use the
+            most recent specifications.
+
+        .. versionchanged:: 3.2
+            Implement the Sequence ABC.
+            Support slicing and negative indices.
+            Test :class:`int` objects for membership in constant time instead of
+            iterating through all items.
+
+            :note: Instances of :py:class:`~backports.range.range` test membership
+                   in constant time for any object inheriting equality (``__eq__``)
+                   from any of :class:`int`, :class:`long` or :class:`bool`.
+
+        .. versionchanged:: 3.3
+            Define '==' and '!=' to compare range objects based on the
+            sequence of values they define (instead of comparing based on
+            object identity).
         """
         # docstring taken from https://docs.python.org/3/library/stdtypes.html
         if stop is None:
@@ -91,14 +172,17 @@ class range(object):
     # attributes are read-only
     @property
     def start(self):
+        """The value of the *start* parameter (or ``0`` if the parameter was not supplied)"""
         return self._start
 
     @property
     def stop(self):
+        """The value of the *stop* parameter"""
         return self._stop
 
     @property
     def step(self):
+        """The value of the *step* parameter (or ``1`` if the parameter was not supplied)"""
         return self._step
 
     def __nonzero__(self):
