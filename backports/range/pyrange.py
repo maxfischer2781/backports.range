@@ -356,9 +356,18 @@ class range(object):
 
     def index(self, value, start=None, stop=None):
         """Return first index of ``value``. Raises :py:exc:`ValueError` if ``value`` is not in the range."""
-        try:
-            native_value = operator.index(value)
-        except TypeError:
+        # Note: objects are never coerced into other types for comparison
+        if type(value).__eq__ in _int__eq__s:
+            index = (value - self._start) // self._step
+            if self._contains_int(value):
+                if start is None and stop is None:
+                    return index
+                else:
+                    start = 0 if start is None else start + self._len if start < 0 else start
+                    stop = self._len if stop is None else stop + self._len if stop < 0 else stop
+                    if start <= index < stop:
+                        return index
+        else:
             # take the slow path, compare every single item
             for index, self_item in enumerate(self):
                 if self_item == value:
@@ -371,16 +380,6 @@ class range(object):
                         stop = self._len if stop is None else stop + self._len if stop < 0 else stop
                         if start <= index < stop:
                             return index
-        else:
-            index = (native_value - self._start) // self._step
-            if self._contains_int(native_value):
-                if start is None and stop is None:
-                    return index
-                else:
-                    start = 0 if start is None else start + self._len if start < 0 else start
-                    stop = self._len if stop is None else stop + self._len if stop < 0 else stop
-                    if start <= index < stop:
-                        return index
         raise ValueError('%r is not in range' % value)
 
     def count(self, value):
