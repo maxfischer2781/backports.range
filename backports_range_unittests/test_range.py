@@ -64,6 +64,7 @@ def pyrange_reversed(start, stop, step):
 
 # noinspection PyCompatibility,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyStatementEffect,PyTypeChecker,PyTypeChecker,PyTypeChecker,PyTypeChecker,PyTypeChecker,PyTypeChecker,PyTypeChecker
 class RangeTest(unittest.TestCase):
+    """Official python 3.6 unittests"""
     range_type = backport_range
 
     # original py3.6 unittests
