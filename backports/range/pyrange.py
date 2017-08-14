@@ -327,14 +327,12 @@ class range(object):
         # subtypes are not allowed, so that custom __eq__ can be used
         # we use fast comparison only if:
         #   a type does use the default __eq__
-        try:
-            if type(item).__eq__ not in _int__eq__s:
-                raise AttributeError
-        except AttributeError:
+        # Note: objects are never coerced into other types for comparison
+        if type(item).__eq__ in _int__eq__s:
+            return self._contains_int(item)
+        else:
             # take the slow path, compare every single item
             return any(self_item == item for self_item in self)
-        else:
-            return self._contains_int(item)
 
     @staticmethod
     def _trivial_test_type(value):
