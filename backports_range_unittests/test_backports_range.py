@@ -17,6 +17,7 @@ except ImportError:
 class CustomRangeTest(unittest.TestCase):
     """Custom unittests for additional/compatibility features"""
     @unittest.skipUnless(type(range(1)) == range, "no builtin range class")
+    @unittest.skipUnless(range(0, 27) == range(0, 27), "no equality defined for builtin range")
     def test_compare_builtin(self):
         """Compatibility: backport range equal to builtin range"""
         init_args = (
