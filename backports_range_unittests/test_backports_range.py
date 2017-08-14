@@ -16,6 +16,11 @@ except ImportError:
 
 class CustomRangeTest(unittest.TestCase):
     """Custom unittests for additional/compatibility features"""
+    @staticmethod
+    def _normalize_index(index, length):
+        """Normalize an index to [0, length)"""
+        return index % length
+
     @unittest.skipUnless(type(range(1)) == range, "no builtin range class")
     @unittest.skipUnless(range(0, 27) == range(0, 27), "no equality defined for builtin range")
     def test_compare_builtin(self):
@@ -43,3 +48,39 @@ class CustomRangeTest(unittest.TestCase):
                     self.assertNotEqual(backport_range(*args_a), backport_range(*args_b))
                     self.assertNotEqual(backport_range(*args_a), range(*args_b))
                     self.assertNotEqual(range(*args_a), backport_range(*args_b))
+
+    def test_index_start_stop(self):
+        """Compatibility: range.index start and stop arguments (py3.5 collections.abc.Sequence)"""
+        ranges = [
+            backport_range(10), backport_range(5, 15), backport_range(0, -10, -1),
+            backport_range(-9223372036854775810, -9223372036854775807)
+        ]
+        for test_range in ranges:
+            with self.subTest(test_range=test_range):
+                test_length = len(test_range)
+                for index in itertools.chain(backport_range(0, test_length), backport_range(-test_length, 0, -1)):
+                    self.assertEqual(
+                        test_range.index(test_range[index]),
+                        self._normalize_index(index, test_length)
+                    )
+                    self.assertEqual(
+                        test_range.index(test_range[index], 0, test_length),
+                        self._normalize_index(index, test_length)
+                    )
+                    self.assertEqual(
+                        test_range.index(test_range[index], -test_length, None),
+                        self._normalize_index(index, test_length)
+                    )
+                    self.assertEqual(
+                        test_range.index(test_range[index], None, test_length),
+                        self._normalize_index(index, test_length)
+                    )
+                for index in itertools.chain(backport_range(0, test_length), backport_range(-test_length, -1, -1)):
+                    with self.assertRaises(ValueError):
+                        test_range.index(test_range[index], index + 1)
+                    with self.assertRaises(ValueError):
+                        test_range.index(test_range[index], None, index)
+                    with self.assertRaises(ValueError):
+                        test_range.index(test_range[index], index, index)
+                    with self.assertRaises(ValueError):
+                        test_range.index(test_range[index], index + 1, index)
