@@ -6,9 +6,10 @@ backports.range class from Python 3.3
 
 |pypi| |pypistatus| |pypiversions| |pypiimplementations|
 
-Backports the python 3.X ``range`` class as a replacement for python 2.X ``range``
-functions. The ``range`` class is similar to ``xrange`` in that its values are
-computed on demand - however, the ``range`` class is actually a lazy sequence:
+Backports the Python 3.7 ``range`` class as a replacement for python 2.X ``range``
+functions (and the Python pre-3.7 ``range`` builtin).
+The ``range`` class is similar to ``xrange`` in that its values are computed on demand -
+however, the ``range`` class is also a lazy sequence:
 it supports indexing, membership testing and other sequence features.
 
 Thus, it can be used to replace both `range` and `xrange`.
@@ -45,9 +46,9 @@ Features
 --------
 
 This implementation provides all features introduced and documented in
-python 3.6.
-The `range` class is available as `backports.range.range` -
-you can import it to a separate name or replace the builtin `range` and/or `xrange`.
+python 3.6, and implements the ``collections.abc.Sequence`` interface of Python 3.5 [#seq35]_.
+The ``range`` class is available as ``backports.range.range`` -
+you can import it to a separate name or replace the builtin ``range`` and/or ``xrange``.
 
 .. code::
 
@@ -67,7 +68,8 @@ Performance
 ^^^^^^^^^^^
 
 The ``backports.range`` is adequate in performance for most applications.
-It is comparable in speed to builtins when using `PyPy`_ or `Cython`_, but somewhat slower for small ranges of less than 1000 elements.
+It is comparable in iteration speed to builtins when using `PyPy`_ or `Cython`_.
+For small ranges of less than 1000 elements, there is some small overhead.
 This should not be noticeable in all but the most high-performance applications.
 
 When using CPython (aka plain ``python``), pure python mode is considerably slower than the builtins.
@@ -110,7 +112,9 @@ Compatibility
 
 - Some additional features are available for compatibility:
 
-  - Instances of ``backports.range`` compare equal to equivalent ``builtin.range`` instances (new in Python 3.3)
+  - Instances of ``backports.range.range`` compare equal to equivalent ``builtin.range`` instances (new in Python 3.3)
+
+  - The ``index`` method is compliant with the Python 3.5+ specification of ``collections.abc.Sequence``. [#seq35]_
 
 - Some features depending on language features or other modules may not be
   available or work differently:
@@ -123,6 +127,10 @@ Notice
     This packages includes parts of the python documentation (http://www.python.org)
     Copyright (C) 2001-2016 Python Software Foundation.
     Licensed under the Python Software Foundation License.
+
+.. [#seq35] As of Python 3.6, the builtin ``range`` class is not compliant
+            with the Python 3.5 specification of ``collections.abc.Sequence``.
+            See `Issue 28197 <http://bugs.python.org/issue28197>`_
 
 .. _Cython: http://cython.org
 
