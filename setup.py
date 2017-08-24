@@ -39,7 +39,7 @@ else:
 
 setup(
     name='backports.range',
-    version='3.3.2',
+    version='3.7.0',
     description='Backport of the python 3.X `range` class',
     long_description=long_description,
     author='Max Fischer',
@@ -64,6 +64,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Topic :: Software Development :: Libraries',
         ],
+    keywords='backports range xrange',
     package_data={
         'backports':
             ['range/README.rst', 'range/LICENSE.txt']
