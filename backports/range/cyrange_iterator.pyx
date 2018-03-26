@@ -1,5 +1,3 @@
-from .pyrange_iterator import range_iterator
-
 cdef class llrange_iterator(object):
     cdef long long _start
     cdef long long _step
