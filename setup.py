@@ -38,7 +38,7 @@ else:
 
 #: restriction of compatible cython versions
 Cython_Version = ''
-if sys.version < (3, 3):
+if sys.version_info < (3, 3):
     Cython_Version += '<=2.6.1'
 
 setup(
