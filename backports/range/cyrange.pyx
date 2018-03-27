@@ -344,15 +344,15 @@ cdef class range(object):
 
     def __repr__(self):
         if self.step != 1:
-            return 'range(%s, %s, %s)' % (self.start, self.stop, self.step)
-        return 'range(%s, %s)' % (self.start, self.stop)
+            return 'range(%d, %d, %d)' % (self.start, self.stop, self.step)
+        return 'range(%d, %d)' % (self.start, self.stop)
 
     # Pickling
     def __reduce__(self):
         # __reduce__ protocol:
         # return: factory, factory_args, state, sequence iterator, mapping iterator
         # unpickle: factory(*(factory_args))
-        return self.__class__, (self.start, self.stop, self.step), None, None, None
+        return type(self), (self.start, self.stop, self.step), None, None, None
 
 # register at ABCs
 # do not use decorators to play nice with Cython
