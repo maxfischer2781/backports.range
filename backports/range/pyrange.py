@@ -263,14 +263,14 @@ class range(object):
     def __iter__(self):
         # Let's reinvent the wheel again...
         # We *COULD* use xrange here, but that leads to OverflowErrors etc.
-        return range_iter(self._start, self.step, self._len)
+        return range_iterator(self._start, self.step, self._len)
 
     def __reversed__(self):
         # this is __iter__ in reverse, *by definition*
         if self._len:
-            return range_iter(self[-1], -self.step, self._len)
+            return range_iterator(self[-1], -self.step, self._len)
         else:
-            return range_iter(0, 1, 0)
+            return range_iterator(0, 1, 0)
 
     # Comparison Methods
     # Cython requires the use of __richcmp__ *only* and fails
@@ -416,28 +416,6 @@ class range(object):
         # return: factory, factory_args, state, sequence iterator, mapping iterator
         # unpickle: factory(*(factory_args))
         return self.__class__, (self._start, self._stop, self._step), None, None, None
-
-try:
-    # see if we have the Cython compiled long-long-iterator
-    # ALWAYS use pure-python for incompatible implementations
-    if platform.python_implementation() != 'CPython':
-        raise ImportError
-    from .cyrange_iterator import llrange_iterator
-except ImportError:
-    # if not, expose the python iterator directly
-    range_iter = range_iterator
-else:
-    # if yes, create a factory to pick the best one
-    def range_iter(start, step, count):
-        # C long long guaranteed to support inclusive range [-9223372036854775807, +9223372036854775807]
-        if (
-                -9223372036854775807 <= start <= 9223372036854775807
-                and -9223372036854775807 <= step <= 9223372036854775807
-                and -9223372036854775807 <= count <= 9223372036854775807
-                and -9223372036854775807 <= start + step * count <= 9223372036854775807
-        ):
-            return llrange_iterator(start, step, count)
-        return range_iterator(start, step, count)
 
 # register at ABCs
 # do not use decorators to play nice with Cython
