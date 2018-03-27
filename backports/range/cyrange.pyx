@@ -2,6 +2,8 @@ import builtins
 import operator
 import collections as _abc
 cimport cython
+from cpython.number cimport PyNumber_Index
+
 from .cyrange_iterator cimport llrange_iterator
 
 # default integer __eq__
@@ -125,15 +127,15 @@ cdef class range(object):
             object identity).
         """
         # docstring taken from https://docs.python.org/3/library/stdtypes.html
-        with cython.overflowcheck(True):
+        with cython.overflowcheck(True):  # raises OverflowError if input does not fit
             if stop is None:
                 self.start = 0
-                self.stop = operator.index(start_stop)
+                self.stop = PyNumber_Index(start_stop)
                 self.step = 1
             else:
-                self.start = operator.index(start_stop)
-                self.stop = operator.index(stop)
-                self.step = operator.index(step) if step is not None else 1
+                self.start = PyNumber_Index(start_stop)
+                self.stop = PyNumber_Index(stop)
+                self.step = PyNumber_Index(step) if step is not None else 1
             if self.step == 0:
                 raise ValueError('range() arg 3 must not be zero')
             # length depends only on read-only values, so compute it only once
