@@ -2,11 +2,6 @@ import collections as _abc
 
 
 cdef class llrange_iterator(object):
-    cdef long long _start
-    cdef long long _step
-    cdef long long _max_idx
-    cdef long long _current
-
     def __init__(self, long long start, long long step, long long count, long long current=-1):
         """
         Iterator over a `range`, for internal use only

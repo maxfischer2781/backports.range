@@ -2,7 +2,7 @@ import builtins
 import operator
 import collections as _abc
 cimport cython
-from .cyrange_iterator import llrange_iterator
+from .cyrange_iterator cimport llrange_iterator
 
 # default integer __eq__
 # python 2 has THREE separate integer type comparisons we need to check
