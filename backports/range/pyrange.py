@@ -2,6 +2,10 @@
 from __future__ import division
 import operator
 import platform
+try:
+    import builtins
+except ImportError:
+    import __builtin__ as builtins
 
 try:
     import collections.abc as _abc
@@ -29,8 +33,8 @@ except NameError:
     _int__eq__s = set((int.__eq__,))
 
 # get the builtin type of range class
-if type(range(1)) == range:
-    _builtin_range_class = range
+if type(builtins.range) == type:
+    _builtin_range_class = builtins.range
 else:
     _builtin_range_class = None
 
