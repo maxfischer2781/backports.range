@@ -411,12 +411,11 @@ class range(object):
         return '%s(%s, %s)' % (self.__class__.__name__, self._start, self._stop)
 
     # Pickling
-    def __getstate__(self):
-        return self._start, self._stop, self._step, self._len
-
-    def __setstate__(self, state):
-        self._start, self._stop, self._step, self._len = state
-        self._bool = bool(self._len)
+    def __reduce__(self):
+        # __reduce__ protocol:
+        # return: factory, factory_args, state, sequence iterator, mapping iterator
+        # unpickle: factory(*(factory_args))
+        return self.__class__, (self._start, self._stop, self._step), None, None, None
 
 try:
     # see if we have the Cython compiled long-long-iterator
