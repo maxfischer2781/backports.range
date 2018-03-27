@@ -30,12 +30,16 @@ else:
         for compiled_file in (os.path.splitext(rel_path)[0] + ext for ext in ('.so', '.c')):
             if os.path.isfile(compiled_file):
                 os.unlink(compiled_file)
-        print(mod_path, rel_path)
         extensions.append(
             Extension(name=mod_path, sources=[rel_path])
         )
     if extensions:
         cmdclass = {'build_ext': Cython.Distutils.build_ext}
+
+#: restriction of compatible cython versions
+Cython_Version = ''
+if sys.version < (3, 3):
+    Cython_Version += '<=2.6.1'
 
 setup(
     name='backports.range',
@@ -47,6 +51,9 @@ setup(
     url='https://github.com/maxfischer2781/backports.range.git',
     license='MIT',
     namespace_packages=['backports'],
+    extras_require={
+        'cython': ['cython%s' % Cython_Version],
+    },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
