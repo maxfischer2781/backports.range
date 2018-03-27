@@ -23,7 +23,6 @@ except Exception as err:
 else:
     source_base = os.path.join('backports', 'range')
     for rel_path in (
-        #os.path.join(source_base, 'pyrange.py'),
         os.path.join(source_base, 'cyrange.pyx'),
         os.path.join(source_base, 'cyrange_iterator.pyx'),
     ):
