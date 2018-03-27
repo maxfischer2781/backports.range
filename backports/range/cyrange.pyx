@@ -23,7 +23,7 @@ cdef class range(object):
     cdef readonly long long stop
     cdef readonly long long step
     cdef readonly long long _len
-    cdef readonly long long _bool
+    cdef readonly bint _bool
 
     def __init__(self, start_stop, stop=None, step=None):
         """
