@@ -4,6 +4,7 @@ import collections as _abc
 cimport cython
 from cpython.number cimport PyNumber_Index
 
+from .types cimport range_bound
 from .cyrange_iterator cimport llrange_iterator
 
 # default integer __eq__
