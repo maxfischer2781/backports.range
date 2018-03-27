@@ -7,10 +7,7 @@ try:
 except ImportError:
     import __builtin__ as builtins
 
-try:
-    import collections.abc as _abc
-except ImportError:
-    import collections as _abc
+import collections as _abc
 
 try:
     from itertools import zip_longest as izip_longest
@@ -420,4 +417,3 @@ class range(object):
 # register at ABCs
 # do not use decorators to play nice with Cython
 _abc.Sequence.register(range)
-_abc.Iterator.register(range_iterator)

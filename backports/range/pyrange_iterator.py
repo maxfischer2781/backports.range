@@ -1,4 +1,5 @@
 import sys
+import collections as _abc
 
 
 class range_iterator(object):
@@ -39,3 +40,7 @@ class range_iterator(object):
 
     def __setstate__(self, state):
         self._start, self._max_idx, self._step, self._current = state
+
+# register at ABCs
+# do not use decorators to play nice with Cython
+_abc.Iterator.register(range_iterator)

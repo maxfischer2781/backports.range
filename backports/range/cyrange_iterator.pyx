@@ -1,3 +1,6 @@
+import collections as _abc
+
+
 cdef class llrange_iterator(object):
     cdef long long _start
     cdef long long _step
@@ -37,3 +40,7 @@ cdef class llrange_iterator(object):
         # - the extension type is NOT a valid type for pickle (because of reasons?)
         # - the extension type may be unavailable
         return self.__class__, (self._start, self._step, self._max_idx + 1, self._current), None, None, None
+
+# register at ABCs
+# do not use decorators to play nice with Cython
+_abc.Iterator.register(llrange_iterator)

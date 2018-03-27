@@ -1,5 +1,6 @@
 import builtins
 import operator
+import collections as _abc
 cimport cython
 from .cyrange_iterator import llrange_iterator
 
@@ -356,3 +357,7 @@ cdef class range(object):
         # return: factory, factory_args, state, sequence iterator, mapping iterator
         # unpickle: factory(*(factory_args))
         return self.__class__, (self.start, self.stop, self.step), None, None, None
+
+# register at ABCs
+# do not use decorators to play nice with Cython
+_abc.Sequence.register(range)
