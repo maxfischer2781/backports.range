@@ -35,16 +35,6 @@ if type(builtins.range) == type:
 else:
     _builtin_range_class = None
 
-# check whether this file is being compiled and must follow Cython standards
-try:
-    import cython as _cython
-    if not _cython.compiled:  # pragma: no cover
-        raise ImportError
-except ImportError:
-    CYTHON_COMPILED = False  # noqa
-else:  # coverage: cython compiled only
-    CYTHON_COMPILED = True  # noqa
-
 
 # noinspection PyShadowingBuiltins,PyPep8Naming
 class range(object):
@@ -269,11 +259,7 @@ class range(object):
         else:
             return range_iterator(0, 1, 0)
 
-    # Comparison Methods
-    # Cython requires the use of __richcmp__ *only* and fails
-    # when __eq__ etc. are present.
-    # Each __OP__ is defined as __py_OP__ and rebound as required.
-    def __py_eq__(self, other):
+    def __eq__(self, other):
         if self is other:
             return True
         if isinstance(self, other.__class__):
@@ -304,7 +290,7 @@ class range(object):
         # specs assert that range objects may ONLY equal to range objects
         return NotImplemented
 
-    def __py_ne__(self, other):
+    def __ne__(self, other):
         return not self == other
 
     # order comparisons are forbidden
@@ -312,27 +298,7 @@ class range(object):
         """__gt__ = __le__ = __ge__ = __lt__ = __py_ord__"""
         return NotImplemented
 
-    def __richcmp__(self, other, comp_opcode):  # pragma: no cover
-        # Cython:
-        # Do not rely on the first parameter of these methods, being "self" or the right type.
-        # The types of both operands should be tested before deciding what to do.
-        if not isinstance(self, range):
-            # if other is not of type(self), we can't compare it anyways
-            return NotImplemented
-        # Comparison opcodes:
-        # < <= == != > >=
-        # 0  1  2  3 4  5
-        if comp_opcode == 2:
-            return self.__py_eq__(other)
-        elif comp_opcode == 3:
-            return not self.__py_eq__(other)
-        else:
-            return NotImplemented
-
-    if not CYTHON_COMPILED:
-        __eq__ = __py_eq__
-        __ne__ = __py_ne__
-        __gt__ = __le__ = __ge__ = __lt__ = __py_ord__
+    __gt__ = __le__ = __ge__ = __lt__ = __py_ord__
 
     def __contains__(self, item):
         # specs use fast comparison ONLY for pure ints
