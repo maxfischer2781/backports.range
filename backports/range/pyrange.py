@@ -13,6 +13,14 @@ try:
 except ImportError:
     from itertools import izip_longest
 
+from .pyrange_iterator import range_iterator
+try:
+    if platform.python_implementation() != 'CPython':
+        raise ImportError
+    from .cyrange import range as cyrange  # type: range
+except ImportError:
+    cyrange = None
+
 # default integer __eq__
 # python 2 has THREE separate integer type comparisons we need to check
 try:
@@ -36,14 +44,17 @@ except ImportError:
 else:  # coverage: cython compiled only
     CYTHON_COMPILED = True  # noqa
 
-# need iterator in separate file to avoid import loop
-# cython iterator uses python iterator for pickling
-from .pyrange_iterator import range_iterator
-
 
 # noinspection PyShadowingBuiltins,PyPep8Naming
 class range(object):
     __slots__ = ('_start', '_stop', '_step', '_len', '_bool')
+
+    if cyrange is not None:
+        def __new__(cls, start_stop, stop=None, step=None):
+            try:
+                return cyrange(start_stop, stop, step)
+            except OverflowError:
+                return object.__new__(cls)
 
     def __init__(self, start_stop, stop=None, step=None):
         """
