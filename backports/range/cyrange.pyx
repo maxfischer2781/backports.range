@@ -127,24 +127,33 @@ cdef class range(object):
     """
     # docstring taken from https://docs.python.org/3/library/stdtypes.html
     def __init__(self, start_stop, stop=None, step=None):
+        cdef:
+            range_bound _len
+            range_bound _start
+            range_bound _stop
+            range_bound _step
         with cython.overflowcheck(True):  # raises OverflowError if input does not fit
             if stop is None:
-                self.start = 0
-                self.stop = index(start_stop)
-                self.step = 1
+                _start = 0
+                _stop = index(start_stop)
+                _step = 1
             else:
-                self.start = index(start_stop)
-                self.stop = index(stop)
-                self.step = index(step) if step is not None else 1
-            if self.step == 0:
+                _start = index(start_stop)
+                _stop = index(stop)
+                _step = index(step) if step is not None else 1
+            if _step == 0:
                 raise ValueError('range() arg 3 must not be zero')
             # length depends only on read-only values, so compute it only once
             # practically ALL methods use it, so compute it NOW
             # range is required to handle large ints outside of float precision
-            _len = (self.stop - self.start) // self.step
-            _len += 1 if (self.stop - self.start) % self.step else 0
-            self._len = 0 if _len < 0 else _len
-            self._bool = bool(self._len)
+            _len = (_stop - _start) // _step
+            _len += 1 if (_stop - _start) % _step else 0
+            _len = 0 if _len < 0 else _len
+        self.start = _start
+        self.stop = _stop
+        self.step = _step
+        self._len = _len
+        self._bool = bool(self._len)
 
     def __nonzero__(self):
         return self._bool
