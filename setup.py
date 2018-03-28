@@ -22,14 +22,14 @@ except Exception as err:
     print('Cannot cythonize "backports.range": %s' % err, file=sys.stderr)
 else:
     source_base = os.path.join('backports', 'range')
-    for rel_path in (
-        os.path.join(source_base, 'cyrange.pyx'),
-        os.path.join(source_base, 'cyrange_iterator.pyx'),
-    ):
-        mod_path = os.path.splitext(rel_path)[0].replace(os.sep, '.')
+    for basename in ('cyrange.pyx', 'cyrange_iterator.pyx'):
+        rel_path = os.path.join(source_base, basename)
         for compiled_file in (os.path.splitext(rel_path)[0] + ext for ext in ('.so', '.c')):
-            if os.path.isfile(compiled_file):
+            try:
                 os.unlink(compiled_file)
+            except OSError:
+                pass
+        mod_path = os.path.splitext(rel_path)[0].replace(os.sep, '.')
         extensions.append(
             Extension(name=mod_path, sources=[rel_path])
         )
