@@ -1,8 +1,7 @@
 import builtins
-import operator
 import collections as _abc
 cimport cython
-from cpython.number cimport PyNumber_Index
+from cpython.number cimport PyNumber_Index as index
 
 from .types cimport range_bound
 from .cyrange_iterator cimport llrange_iterator
@@ -131,12 +130,12 @@ cdef class range(object):
         with cython.overflowcheck(True):  # raises OverflowError if input does not fit
             if stop is None:
                 self.start = 0
-                self.stop = PyNumber_Index(start_stop)
+                self.stop = index(start_stop)
                 self.step = 1
             else:
-                self.start = PyNumber_Index(start_stop)
-                self.stop = PyNumber_Index(stop)
-                self.step = PyNumber_Index(step) if step is not None else 1
+                self.start = index(start_stop)
+                self.stop = index(stop)
+                self.step = index(step) if step is not None else 1
             if self.step == 0:
                 raise ValueError('range() arg 3 must not be zero')
             # length depends only on read-only values, so compute it only once
@@ -175,7 +174,7 @@ cdef class range(object):
                 if slice_start is None:  # slice open to left as in [None:12312]
                     new_start = self.start
                 else:
-                    start_idx = operator.index(slice_start)
+                    start_idx = index(slice_start)
                     if start_idx >= max_len:  # cut off out-of-range
                         new_start = self.stop
                     elif start_idx < -max_len:
@@ -185,7 +184,7 @@ cdef class range(object):
                 if slice_stop is None:  # slice open to right as in [1213:None]
                     new_stop = self.stop
                 else:
-                    stop_idx = operator.index(slice_stop)
+                    stop_idx = index(slice_stop)
                     if stop_idx >= max_len:
                         new_stop = self.stop
                     elif stop_idx < -max_len:
@@ -198,7 +197,7 @@ cdef class range(object):
                 new_stop = self.start + self.step * stop_idx
             return self.__class__(new_start, new_stop, self.step * slice_stride)
         # check type first
-        val = operator.index(item)
+        val = index(item)
         if val < 0:
             val += self._len
         if val < 0 or val >= self._len:
