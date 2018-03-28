@@ -74,8 +74,8 @@ CLI.add_argument(
     default=[1024]
 )
 CLI.add_argument(
-    '--sort',
-    help='profile sort key',
+    '--profile',
+    help='profile sort key (empty string disables profile)',
     default='cumtime',
 )
 CLI.add_argument(
@@ -88,8 +88,9 @@ CLI.add_argument(
 
 def run_benchmark(range_type, start, stop, step, max_time, sort):
     range_class = RANGE_TYPES[range_type]
-    profiler = profile_iteration(range_class, start, stop, step, max_time)
-    profiler.print_stats(sort)
+    if sort:
+        profiler = profile_iteration(range_class, start, stop, step, max_time)
+        profiler.print_stats(sort)
     loops, usages = zip(*(track_iteration(range_class, start, stop, step, max_time) for _ in range(5)))
     return {
         range_type: {
@@ -113,7 +114,7 @@ def main():
     print('backports path:', backports.range.__file__, file=sys.stderr)
     print('range size:', stop-start, file=sys.stderr)
     print(json.dumps(
-        run_benchmark(options.type, start, stop, step, options.time, options.sort),
+        run_benchmark(options.type, start, stop, step, options.time, options.profile),
         indent='  ',
     ))
 
