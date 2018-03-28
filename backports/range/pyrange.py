@@ -1,6 +1,6 @@
 """The range class from Python3"""
 from __future__ import division
-import operator
+from operator import index
 try:
     import builtins
 except ImportError:
@@ -136,12 +136,12 @@ class range(object):
         # docstring taken from https://docs.python.org/3/library/stdtypes.html
         if stop is None:
             self._start = 0
-            self._stop = operator.index(start_stop)
+            self._stop = index(start_stop)
             self._step = 1
         else:
-            self._start = operator.index(start_stop)
-            self._stop = operator.index(stop)
-            self._step = operator.index(step) if step is not None else 1
+            self._start = index(start_stop)
+            self._stop = index(stop)
+            self._step = index(step) if step is not None else 1
         if self._step == 0:
             raise ValueError('range() arg 3 must not be zero')
         # length depends only on read-only values, so compute it only once
@@ -198,7 +198,7 @@ class range(object):
                 if slice_start is None:  # slice open to left as in [None:12312]
                     new_start = self._start
                 else:
-                    start_idx = operator.index(slice_start)
+                    start_idx = index(slice_start)
                     if start_idx >= max_len:  # cut off out-of-range
                         new_start = self._stop
                     elif start_idx < -max_len:
@@ -208,7 +208,7 @@ class range(object):
                 if slice_stop is None:  # slice open to right as in [1213:None]
                     new_stop = self._stop
                 else:
-                    stop_idx = operator.index(slice_stop)
+                    stop_idx = index(slice_stop)
                     if stop_idx >= max_len:
                         new_stop = self._stop
                     elif stop_idx < -max_len:
@@ -221,7 +221,7 @@ class range(object):
                 new_stop = self._start + self._step * stop_idx
             return self.__class__(new_start, new_stop, self.step * slice_stride)
         # check type first
-        val = operator.index(item)
+        val = index(item)
         if val < 0:
             val += self._len
         if val < 0 or val >= self._len:
