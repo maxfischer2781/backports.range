@@ -7,5 +7,4 @@ cdef class range(object):
     cdef readonly range_bound _len
     cdef readonly bint _bool
 
-    cdef __py_eq__(self, other)
-    cdef __py_ne__(self, other)
+    cpdef __py_eq__(self, other)

@@ -229,7 +229,7 @@ cdef class range(object):
     # Cython requires the use of __richcmp__ *only* and fails
     # when __eq__ etc. are present.
     # Each __OP__ is defined as __py_OP__ and rebound as required.
-    cdef __py_eq__(self, other):
+    cpdef __py_eq__(self, other):
         cdef:
             range other_range
         if self is other:
@@ -263,9 +263,6 @@ cdef class range(object):
         # specs assert that range objects may ONLY equal to range objects
         return NotImplemented
 
-    cdef __py_ne__(self, other):
-        return not self.__py_eq__(other)
-
     def __richcmp__(self, other, int comp_opcode):  # pragma: no cover
         # Cython:
         # Do not rely on the first parameter of these methods, being "self" or the right type.
@@ -282,7 +279,10 @@ cdef class range(object):
             eq = self.__py_eq__(other)
             if eq is NotImplemented:
                 return NotImplemented
-            return not eq
+            elif eq:
+                return False
+            else:
+                return True
         else:
             return NotImplemented
 
