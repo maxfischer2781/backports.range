@@ -84,9 +84,9 @@ Interpreter     vs Builtin range  vs Builtin xrange
 Py2                      50 - 100            20 - 50
 Py3                       25 - 30                ---
 Py2 + Cython                3 - 6            1.0 - 3
-Py3 + Cython              1.1 - 3                ---
-PyPy2                   1.6 - 2.5          1.6 - 2.3
-PyPy3                   0.9 - 1.2                ---
+Py3 + Cython            1.0 - 1.2                ---
+PyPy2                   1.4 - 1.6          1.6 - 2.3
+PyPy3                   1.0 - 1.1                ---
 =============== ================= ==================
 
 Cython Optimizations
@@ -94,7 +94,7 @@ Cython Optimizations
 
 The backport features a `Cython`_ implementation.
 It is transparently used when creating a ``range`` class.
-It optimises operations which are purely in the C ``long long`` range.
+It optimises operations which are purely in the C ``long long`` range. [#clonglong]_
 
 All `Cython`_ optimizations are optional.
 They are automatically made available if `Cython`_ is installed.
@@ -123,6 +123,23 @@ Compatibility
 
   - Comparing ``range`` against other types does not throw ``TypeError`` in python 2.X.
 
+  - Python implementations use custom optimisations at compile time when provably encountering a *builtin* range.
+    These *cannot* be replicated by the backport.
+    Note that this is only noticeable in highly optimised code, which should be hand-optimised anyway.
+
+Status and Contributing
+-----------------------
+
+For all practical purposes, the backport is complete.
+The ``range`` class satisfies all unittest of Python 3.7, as well as several tests for compatibility.
+It is a fully featured replacement suitable even for recent versions of Python.
+
+Performance should be more than adequate for any use case.
+The backport is comparable or even equal in performance to builtins.
+
+If you encounter any problems, please head over to the `issue tracker`_.
+Feel free to submit a pull request if you think the codebase can be improved.
+
 Notice
 ------
 
@@ -141,3 +158,5 @@ Notice
 .. _Cython: http://cython.org
 
 .. _PyPy: http://pypy.org
+
+.. _issue tracker: https://github.com/maxfischer2781/backports.range/issues
