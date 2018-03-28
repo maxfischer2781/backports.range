@@ -26,9 +26,9 @@ except NameError:
 
 # get the builtin type of range class
 if type(builtins.range) == type:
-    _builtin_range_class = builtins.range
+    _builtin_range_class = builtins.range if cyrange is None else (builtins.range, cyrange)
 else:
-    _builtin_range_class = None
+    _builtin_range_class = cyrange
 
 
 # noinspection PyShadowingBuiltins,PyPep8Naming
