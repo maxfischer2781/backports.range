@@ -230,26 +230,29 @@ cdef class range(object):
     # when __eq__ etc. are present.
     # Each __OP__ is defined as __py_OP__ and rebound as required.
     def __py_eq__(self, other):
+        cdef:
+            range other_range
         if self is other:
             return True
         if isinstance(self, other.__class__):
+            other_range = other
             # unequal number of elements
             # check this first to imply some more features
             # NOTE: call other._len to avoid OverflowError
-            if self._len != other._len:
+            if self._len != other_range._len:
                 return False
             # empty ranges are always equal
             elif not self._bool:
                 return True
             # first element must always match
-            elif self.start != other.start:
+            elif self.start != other_range.start:
                 return False
             # just that one element, step does not matter
             elif self._len == 1:
                 return True
             # final element is implied by same start, count and step
             else:
-                return self.step == other.step
+                return self.step == other_range.step
         elif _builtin_range_class is not None and isinstance(other, _builtin_range_class):
             # NOTE: we cannot safely check len(other) due to OverflowError
             # for an empty range, specifics do not matter
