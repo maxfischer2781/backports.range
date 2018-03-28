@@ -23,6 +23,11 @@ def pyrange(start_stop, stop, step):
 
 RANGE_TYPES['pyrange'] = pyrange
 
+try:
+    RANGE_TYPES['xrange'] = xrange
+except NameError:
+    pass
+
 
 def flatten_range_args(start_stop, stop=None, step=None):
     if not stop:
@@ -115,7 +120,7 @@ def main():
     print('range size:', stop-start, file=sys.stderr)
     print(json.dumps(
         run_benchmark(options.type, start, stop, step, options.time, options.profile),
-        indent='  ',
+        indent=2,
     ))
 
 
