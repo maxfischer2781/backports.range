@@ -9,11 +9,6 @@ except ImportError:
 
 import collections as _abc
 
-try:
-    from itertools import zip_longest as izip_longest
-except ImportError:
-    from itertools import izip_longest
-
 from .pyrange_iterator import range_iterator
 try:
     if platform.python_implementation() != 'CPython':
