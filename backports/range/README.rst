@@ -7,12 +7,12 @@ backports.range class from Python 3.3
 |pypi| |pypistatus| |pypiversions| |pypiimplementations|
 
 Backports the Python 3.7 ``range`` class as a replacement for python 2.X ``range``
-functions (and the Python pre-3.7 ``range`` builtin).
+functions (and the Python pre-3.7 ``range`` class).
 The ``range`` class is similar to ``xrange`` in that its values are computed on demand -
 however, the ``range`` class is also a lazy sequence:
 it supports indexing, membership testing and other sequence features.
 
-Thus, it can be used to replace both `range` and `xrange`.
+Thus, it can be used to replace both ``range`` and ``xrange``.
 
 
 .. |travis| image:: https://travis-ci.org/maxfischer2781/backports.range.svg?branch=master
@@ -46,7 +46,7 @@ Features
 --------
 
 This implementation provides all features introduced and documented in
-python 3.6, and implements the ``collections.abc.Sequence`` interface of Python 3.5 [#seq35]_.
+python 3.6, and implements the ``collections.abc.Sequence`` interface of Python 3.5 [#seq35]_ and later.
 The ``range`` class is available as ``backports.range.range`` -
 you can import it to a separate name or replace the builtin ``range`` and/or ``xrange``.
 
@@ -62,7 +62,7 @@ you can import it to a separate name or replace the builtin ``range`` and/or ``x
     print(values[2], len(values))
 
 All objects are available by default in a pure python implementation.
-In addition, there are optional, optimized implementations using `Cython`_.
+In addition, an optional, optimized implementation is available using `Cython`_.
 
 Performance
 ^^^^^^^^^^^
@@ -92,10 +92,12 @@ PyPy3                   0.9 - 1.2                ---
 Cython Optimizations
 ^^^^^^^^^^^^^^^^^^^^
 
+The backport features a `Cython`_ implementation.
+It is transparently used when creating a ``range`` class.
+It optimises operations which are purely in the C ``long long`` range.
+
 All `Cython`_ optimizations are optional.
 They are automatically made available if `Cython`_ is installed.
-
-- Iteration in the C long long range `[-9223372036854775807, 9223372036854775807]`
 
 Compatibility
 -------------
@@ -131,6 +133,10 @@ Notice
 .. [#seq35] As of Python 3.6, the builtin ``range`` class is not compliant
             with the Python 3.5 specification of ``collections.abc.Sequence``.
             See `Issue 28197 <http://bugs.python.org/issue28197>`_
+
+.. [#clonglong] The ``long long`` type should fill any current CPU architecture (read 64bit).
+                Since Python cannot parallelize instructions,
+                this should provide maximum range with optimal performance for small values.
 
 .. _Cython: http://cython.org
 
