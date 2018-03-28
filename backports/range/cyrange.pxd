@@ -6,3 +6,6 @@ cdef class range(object):
     cdef readonly range_bound step
     cdef readonly range_bound _len
     cdef readonly bint _bool
+
+    cdef __py_eq__(self, other)
+    cdef __py_ne__(self, other)
