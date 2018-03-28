@@ -39,7 +39,7 @@ else:
 #: restriction of compatible cython versions
 Cython_Version = ''
 if sys.version_info < (3, 3):
-    Cython_Version += '<=2.6.1'
+    Cython_Version += '<=0.26.1'
 
 setup(
     name='backports.range',
