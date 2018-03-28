@@ -266,7 +266,7 @@ cdef class range(object):
     cdef __py_ne__(self, other):
         return not self.__py_eq__(other)
 
-    def __richcmp__(self, other, comp_opcode):  # pragma: no cover
+    def __richcmp__(self, other, int comp_opcode):  # pragma: no cover
         # Cython:
         # Do not rely on the first parameter of these methods, being "self" or the right type.
         # The types of both operands should be tested before deciding what to do.
