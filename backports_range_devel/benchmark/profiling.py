@@ -53,15 +53,17 @@ def profile_iteration(range_type, start, stop, step, max_time=1.0):
 def track_iteration(range_type, start, stop=None, step=None, max_time=1.0):
     loops = 0
     start_resources = resource.getrusage(resource.RUSAGE_SELF)
-    end_time = time.time() + max_time
-    while time.time() < end_time:
+    target_time = time.time() + max_time
+    while time.time() < target_time:
         loops += 1
         range_obj = range_type(start, stop, step)
         result = [a for a in range_obj]
+    stop_time = time.time()
     end_resources = resource.getrusage(resource.RUSAGE_SELF)
     assert len(result) == len(range_type(start, stop, step))
     usage = resource.struct_rusage((end_resources[idx] - start_resources[idx]) for idx in range(len(end_resources)))
-    return loops, usage
+    duration = stop_time - (target_time - max_time)
+    return loops, usage, duration
 
 
 CLI = argparse.ArgumentParser()
@@ -80,7 +82,7 @@ CLI.add_argument(
 )
 CLI.add_argument(
     '--profile',
-    help='profile sort key (empty string disables profile)',
+    help='profile sort key',
     default='cumtime',
 )
 CLI.add_argument(
@@ -89,25 +91,24 @@ CLI.add_argument(
     default=1.0,
     type=float,
 )
+CLI.add_argument(
+    '--mode',
+    choices=['profile', 'ops'],
+    default='profile',
+)
 
 
-def run_benchmark(range_type, start, stop, step, max_time, sort):
-    range_class = RANGE_TYPES[range_type]
-    if sort:
-        profiler = profile_iteration(range_class, start, stop, step, max_time)
-        profiler.print_stats(sort)
-    loops, usages = zip(*(track_iteration(range_class, start, stop, step, max_time) for _ in range(5)))
+def run_benchmark(range_class, start, stop, step, max_time, sort=None):
+    loops, usages, _ = zip(*(track_iteration(range_class, start, stop, step, max_time) for _ in range(5)))
     return {
-        range_type: {
-            'conditions': {
-                'extend': (start, stop, step),
-                'size': stop-start,
-            },
-            'results': {
-                'loops': sorted(loops),
-                'rss': [usage.ru_maxrss for usage in usages],
-                'ops': sorted(loop * (stop-start) for loop in loops)
-            }
+        'conditions': {
+            'extend': (start, stop, step),
+            'size': stop-start,
+        },
+        'results': {
+            'loops': sorted(loops),
+            'rss': [usage.ru_maxrss for usage in usages],
+            'ops': sorted(loop * (stop-start) for loop in loops)
         }
     }
 
@@ -118,10 +119,19 @@ def main():
     start, stop, step = flatten_range_args(*options.range_args)
     print('backports path:', backports.range.__file__, file=sys.stderr)
     print('range size:', stop-start, file=sys.stderr)
-    print(json.dumps(
-        run_benchmark(options.type, start, stop, step, options.time, options.profile),
-        indent=2,
-    ))
+    range_class = RANGE_TYPES[options.type]
+    if options.mode == 'profile':
+        profiler = profile_iteration(range_class, start, stop, step, options.time)
+        profiler.print_stats(options.profile or 'cumtime')
+    elif options.mode == 'ops':
+        print(json.dumps(
+            {
+                options.type: run_benchmark(range_class, start, stop, step, options.time, options.profile),
+            },
+            indent=2,
+        ))
+    else:
+        raise RuntimeError
 
 
 if __name__ == '__main__':
