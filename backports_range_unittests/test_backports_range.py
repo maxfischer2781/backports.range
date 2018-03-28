@@ -34,7 +34,7 @@ class CustomRangeTest(unittest.TestCase):
             (-9223372036854775809, -9223372036854775807), (9223372036854775807, 9223372036854775809),
             # empty ranges
             (1, 1, 1), (20, 0, 1), (0, 50, -1), (0, 0),
-            # C long long barroer empty range
+            # C long long barrier empty range
             (9223372036854775807, -9223372036854775809),
             # regular ranges
             (1, 120, 5), (1, 119, 5), (-27, 0, 2), (0, -27, 2)
@@ -129,3 +129,22 @@ class CustomRangeTest(unittest.TestCase):
                 test_range.index(NeverEqual())
             with self.assertRaises(ValueError):
                 test_range.index(NeverEqual(), 0, test_length)
+
+    def test_overflow_slice(self):
+        def assertSlice(range_obj, start, stop, step=None):
+            range_slice = range_obj[start:stop:step]
+            value_slice = list(range_obj)[start:stop:step]
+            self.assertEqual(len(range_slice), len(value_slice))
+            self.assertEqual(list(range_slice), value_slice)
+        for range_ob in (
+                backport_range(1), backport_range(-10, 10, 2), backport_range(0, 1024, 16),
+                backport_range(-9223372036854775810, -9223372036854775807),
+                backport_range(9223372036854775807, 9223372036854775809),
+        ):
+            assertSlice(range_ob, 0, -1)
+            assertSlice(range_ob, 0, -1, 1)
+            assertSlice(range_ob, None, None, None)
+            assertSlice(range_ob, range_ob.start, range_ob.stop, range_ob.step)
+            for offset in (-16, 16):
+                assertSlice(range_ob, range_ob.start + offset, range_ob.stop, range_ob.step)
+                assertSlice(range_ob, range_ob.start, range_ob.stop + offset, range_ob.step)
