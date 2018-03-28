@@ -86,18 +86,13 @@ CLI.add_argument(
 )
 
 
-def main():
-    options = CLI.parse_args()
-    range_type = RANGE_TYPES[options.type]
-    assert len(options.range_args) <=3, 'range expects at most 3 arguments, got %d' % len(options.range_args)
-    start, stop, step = flatten_range_args(*options.range_args)
-    print('backports path:', backports.range.__file__, file=sys.stderr)
-    print('range size:', stop-start, file=sys.stderr)
-    profiler = profile_iteration(range_type, start, stop, step, options.time)
-    profiler.print_stats(options.sort)
-    loops, usages = zip(*(track_iteration(range_type, start, stop, step, options.time) for _ in range(5)))
-    print(json.dumps({
-        options.type: {
+def run_benchmark(range_type, start, stop, step, max_time, sort):
+    range_class = RANGE_TYPES[range_type]
+    profiler = profile_iteration(range_class, start, stop, step, max_time)
+    profiler.print_stats(sort)
+    loops, usages = zip(*(track_iteration(range_class, start, stop, step, max_time) for _ in range(5)))
+    return {
+        range_type: {
             'conditions': {
                 'extend': (start, stop, step),
                 'size': stop-start,
@@ -108,7 +103,19 @@ def main():
                 'ops': sorted(loop * (stop-start) for loop in loops)
             }
         }
-    }))
+    }
+
+
+def main():
+    options = CLI.parse_args()
+    assert len(options.range_args) <= 3, 'range expects at most 3 arguments, got %d' % len(options.range_args)
+    start, stop, step = flatten_range_args(*options.range_args)
+    print('backports path:', backports.range.__file__, file=sys.stderr)
+    print('range size:', stop-start, file=sys.stderr)
+    print(json.dumps(
+        run_benchmark(options.type, start, stop, step, options.time, options.sort),
+        indent='  ',
+    ))
 
 
 if __name__ == '__main__':
