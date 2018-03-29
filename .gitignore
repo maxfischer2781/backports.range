@@ -227,3 +227,6 @@ Temporary Items
 *.dSYM/
 *.su
 
+### Cython extension code
+*.c
+*.html

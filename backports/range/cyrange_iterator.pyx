@@ -1,11 +1,7 @@
-from .pyrange_iterator import range_iterator
+import collections as _abc
+
 
 cdef class llrange_iterator(object):
-    cdef long long _start
-    cdef long long _step
-    cdef long long _max_idx
-    cdef long long _current
-
     def __init__(self, long long start, long long step, long long count, long long current=-1):
         """
         Iterator over a `range`, for internal use only
@@ -38,4 +34,8 @@ cdef class llrange_iterator(object):
         # we use the plain python iterator because:
         # - the extension type is NOT a valid type for pickle (because of reasons?)
         # - the extension type may be unavailable
-        return self.__class__, (self._start, self._step, self._max_idx + 1, self._current), None, None, None
+        return type(self), (self._start, self._step, self._max_idx + 1, self._current), None, None, None
+
+# register at ABCs
+# do not use decorators to play nice with Cython
+_abc.Iterator.register(llrange_iterator)

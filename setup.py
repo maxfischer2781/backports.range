@@ -22,20 +22,24 @@ except Exception as err:
     print('Cannot cythonize "backports.range": %s' % err, file=sys.stderr)
 else:
     source_base = os.path.join('backports', 'range')
-    for rel_path in (
-        #os.path.join(source_base, 'pyrange.py'),
-        os.path.join(source_base, 'cyrange_iterator.pyx'),
-    ):
-        mod_path = os.path.splitext(rel_path)[0].replace(os.sep, '.')
+    for basename in ('cyrange.pyx', 'cyrange_iterator.pyx'):
+        rel_path = os.path.join(source_base, basename)
         for compiled_file in (os.path.splitext(rel_path)[0] + ext for ext in ('.so', '.c')):
-            if os.path.isfile(compiled_file):
+            try:
                 os.unlink(compiled_file)
-        print(mod_path, rel_path)
+            except OSError:
+                pass
+        mod_path = os.path.splitext(rel_path)[0].replace(os.sep, '.')
         extensions.append(
             Extension(name=mod_path, sources=[rel_path])
         )
     if extensions:
         cmdclass = {'build_ext': Cython.Distutils.build_ext}
+
+#: restriction of compatible cython versions
+Cython_Version = ''
+if sys.version_info < (3, 3):
+    Cython_Version += '<=0.26.1'
 
 setup(
     name='backports.range',
@@ -47,6 +51,9 @@ setup(
     url='https://github.com/maxfischer2781/backports.range.git',
     license='MIT',
     namespace_packages=['backports'],
+    extras_require={
+        'cython': ['cython%s' % Cython_Version],
+    },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
@@ -66,8 +73,11 @@ setup(
         ],
     keywords='backports range xrange',
     package_data={
-        'backports':
-            ['range/README.rst', 'range/LICENSE.txt']
+        'backports/range':
+            [
+                'README.rst', 'LICENSE.txt',
+                '*.pxd',
+            ]
     },
     packages=find_packages(exclude=('backports_*',)),
     test_suite='backports_range_unittests',

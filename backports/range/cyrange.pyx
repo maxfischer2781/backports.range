@@ -1,21 +1,10 @@
-"""The range class from Python3"""
-from __future__ import division
-from operator import index
-import platform
-try:
-    import builtins
-except ImportError:
-    import __builtin__ as builtins
-
+import builtins
 import collections as _abc
+cimport cython
+from cpython.number cimport PyNumber_Index as index
 
-from .pyrange_iterator import range_iterator
-try:
-    if platform.python_implementation() != 'CPython':
-        raise ImportError
-    from .cyrange import range as cyrange  # type: range
-except ImportError:
-    cyrange = None
+from .types cimport range_bound
+from .cyrange_iterator cimport llrange_iterator
 
 # default integer __eq__
 # python 2 has THREE separate integer type comparisons we need to check
@@ -26,13 +15,12 @@ except NameError:
 
 # get the builtin type of range class
 if type(builtins.range) == type:
-    _builtin_range_class = builtins.range if cyrange is None else (builtins.range, cyrange)
+    _builtin_range_class = builtins.range
 else:
-    _builtin_range_class = cyrange
+    _builtin_range_class = None
 
 
-# noinspection PyShadowingBuiltins,PyPep8Naming
-class range(object):
+cdef class range(object):
     """
     Object that produces a sequence of integers from start (inclusive) to
     stop (exclusive) by step.
@@ -138,54 +126,37 @@ class range(object):
         object identity).
     """
     # docstring taken from https://docs.python.org/3/library/stdtypes.html
-    __slots__ = ('_start', '_stop', '_step', '_len', '_bool')
-
-    if cyrange is not None:
-        def __new__(cls, start_stop, stop=None, step=None):
-            try:
-                return cyrange(start_stop, stop, step)
-            except OverflowError:
-                return object.__new__(cls)
-
     def __init__(self, start_stop, stop=None, step=None):
-        if stop is None:
-            self._start = 0
-            self._stop = index(start_stop)
-            self._step = 1
-        else:
-            self._start = index(start_stop)
-            self._stop = index(stop)
-            self._step = index(step) if step is not None else 1
-        if self._step == 0:
-            raise ValueError('range() arg 3 must not be zero')
-        # length depends only on read-only values, so compute it only once
-        # practically ALL methods use it, so compute it NOW
-        # range is required to handle large ints outside of float precision
-        _len = (self._stop - self._start) // self._step
-        _len += 1 if (self._stop - self._start) % self._step else 0
-        self._len = 0 if _len < 0 else _len
+        cdef:
+            range_bound _len
+            range_bound _start
+            range_bound _stop
+            range_bound _step
+        with cython.overflowcheck(True):  # raises OverflowError if input does not fit
+            if stop is None:
+                _start = 0
+                _stop = index(start_stop)
+                _step = 1
+            else:
+                _start = index(start_stop)
+                _stop = index(stop)
+                _step = index(step) if step is not None else 1
+            if _step == 0:
+                raise ValueError('range() arg 3 must not be zero')
+            # length depends only on read-only values, so compute it only once
+            # practically ALL methods use it, so compute it NOW
+            # range is required to handle large ints outside of float precision
+            _len = (_stop - _start) // _step
+            _len += 1 if (_stop - _start) % _step else 0
+            _len = 0 if _len < 0 else _len
+        self.start = _start
+        self.stop = _stop
+        self.step = _step
+        self._len = _len
         self._bool = bool(self._len)
-
-    # attributes are read-only
-    @property
-    def start(self):
-        """The value of the *start* parameter (or ``0`` if the parameter was not supplied)"""
-        return self._start
-
-    @property
-    def stop(self):
-        """The value of the *stop* parameter"""
-        return self._stop
-
-    @property
-    def step(self):
-        """The value of the *step* parameter (or ``1`` if the parameter was not supplied)"""
-        return self._step
 
     def __nonzero__(self):
         return self._bool
-
-    __bool__ = __nonzero__
 
     # NOTE:
     # We repeatedly use self._len instead of len(self)!
@@ -210,29 +181,29 @@ class range(object):
                 # We cannot use item.indices since that may overflow in py2.X...
                 slice_start, slice_stop, slice_stride, max_len = item.start, item.stop, item.step, self._len
                 if slice_start is None:  # slice open to left as in [None:12312]
-                    new_start = self._start
+                    new_start = self.start
                 else:
                     start_idx = index(slice_start)
                     if start_idx >= max_len:  # cut off out-of-range
-                        new_start = self._stop
+                        new_start = self.stop
                     elif start_idx < -max_len:
-                        new_start = self._start
+                        new_start = self.start
                     else:
                         new_start = self[start_idx]
                 if slice_stop is None:  # slice open to right as in [1213:None]
-                    new_stop = self._stop
+                    new_stop = self.stop
                 else:
                     stop_idx = index(slice_stop)
                     if stop_idx >= max_len:
-                        new_stop = self._stop
+                        new_stop = self.stop
                     elif stop_idx < -max_len:
-                        new_stop = self._start
+                        new_stop = self.start
                     else:
                         new_stop = self[stop_idx]
                 slice_stride = 1 if slice_stride is None else slice_stride
             else:
-                new_start = self._start + self._step * start_idx
-                new_stop = self._start + self._step * stop_idx
+                new_start = self.start + self.step * start_idx
+                new_stop = self.start + self.step * stop_idx
             return self.__class__(new_start, new_stop, self.step * slice_stride)
         # check type first
         val = index(item)
@@ -240,41 +211,48 @@ class range(object):
             val += self._len
         if val < 0 or val >= self._len:
             raise IndexError('range object index out of range')
-        return self._start + self._step * val
+        return self.start + self.step * val
 
     def __iter__(self):
         # Let's reinvent the wheel again...
         # We *COULD* use xrange here, but that leads to OverflowErrors etc.
-        return range_iterator(self._start, self.step, self._len)
+        return llrange_iterator(self.start, self.step, self._len)
 
     def __reversed__(self):
         # this is __iter__ in reverse, *by definition*
         if self._len:
-            return range_iterator(self[-1], -self.step, self._len)
+            return llrange_iterator(self[-1], -self.step, self._len)
         else:
-            return range_iterator(0, 1, 0)
+            return llrange_iterator(0, 1, 0)
 
-    def __eq__(self, other):
+    # Comparison Methods
+    # Cython requires the use of __richcmp__ *only* and fails
+    # when __eq__ etc. are present.
+    # Each __OP__ is defined as __py_OP__ and rebound as required.
+    cpdef __py_eq__(self, other):
+        cdef:
+            range other_range
         if self is other:
             return True
         if isinstance(self, other.__class__):
+            other_range = other
             # unequal number of elements
             # check this first to imply some more features
             # NOTE: call other._len to avoid OverflowError
-            if self._len != other._len:
+            if self._len != other_range._len:
                 return False
             # empty ranges are always equal
             elif not self._bool:
                 return True
             # first element must always match
-            elif self._start != other.start:
+            elif self.start != other_range.start:
                 return False
             # just that one element, step does not matter
             elif self._len == 1:
                 return True
             # final element is implied by same start, count and step
             else:
-                return self._step == other.step
+                return self.step == other_range.step
         elif _builtin_range_class is not None and isinstance(other, _builtin_range_class):
             # NOTE: we cannot safely check len(other) due to OverflowError
             # for an empty range, specifics do not matter
@@ -285,15 +263,28 @@ class range(object):
         # specs assert that range objects may ONLY equal to range objects
         return NotImplemented
 
-    def __ne__(self, other):
-        return not self == other
-
-    # order comparisons are forbidden
-    def __py_ord__(self, other):
-        """__gt__ = __le__ = __ge__ = __lt__ = __py_ord__"""
-        return NotImplemented
-
-    __gt__ = __le__ = __ge__ = __lt__ = __py_ord__
+    def __richcmp__(self, other, int comp_opcode):  # pragma: no cover
+        # Cython:
+        # Do not rely on the first parameter of these methods, being "self" or the right type.
+        # The types of both operands should be tested before deciding what to do.
+        if not isinstance(self, range):
+            # if other is not of type(self), we can't compare it anyways
+            return NotImplemented
+        # Comparison opcodes:
+        # < <= == != > >=
+        # 0  1  2  3 4  5
+        if comp_opcode == 2:
+            return self.__py_eq__(other)
+        elif comp_opcode == 3:
+            eq = self.__py_eq__(other)
+            if eq is NotImplemented:
+                return NotImplemented
+            elif eq:
+                return False
+            else:
+                return True
+        else:
+            return NotImplemented
 
     def __contains__(self, item):
         # specs use fast comparison ONLY for pure ints
@@ -309,18 +300,18 @@ class range(object):
 
     def _contains_int(self, integer):
         # NOTE: integer is not a C int but a Py long
-        if self._step == 1:
-            return self._start <= integer < self._stop
-        elif self._step > 0:
-            return self._stop > integer >= self._start and not (integer - self._start) % self._step
-        elif self._step < 0:
-            return self._stop < integer <= self._start and not (integer - self._start) % self._step
+        if self.step == 1:
+            return self.start <= integer < self.stop
+        elif self.step > 0:
+            return self.stop > integer >= self.start and not (integer - self.start) % self.step
+        elif self.step < 0:
+            return self.stop < integer <= self.start and not (integer - self.start) % self.step
 
     def index(self, value, start=None, stop=None):
         """Return first index of ``value``. Raises :py:exc:`ValueError` if ``value`` is not in the range."""
         # Note: objects are never coerced into other types for comparison
         if type(value).__eq__ in _int__eq__s:
-            index = (value - self._start) // self._step
+            index = (value - self.start) // self.step
             if self._contains_int(value):
                 if start is None and stop is None:
                     return index
@@ -360,20 +351,20 @@ class range(object):
         if not my_len:
             return hash((0, None, None))
         elif my_len == 1:
-            return hash((1, self._start, None))
-        return hash((my_len, self._start, self._step))
+            return hash((1, self.start, None))
+        return hash((my_len, self.start, self.step))
 
     def __repr__(self):
         if self.step != 1:
-            return '%s(%s, %s, %s)' % (self.__class__.__name__, self._start, self._stop, self._step)
-        return '%s(%s, %s)' % (self.__class__.__name__, self._start, self._stop)
+            return 'range(%d, %d, %d)' % (self.start, self.stop, self.step)
+        return 'range(%d, %d)' % (self.start, self.stop)
 
     # Pickling
     def __reduce__(self):
         # __reduce__ protocol:
         # return: factory, factory_args, state, sequence iterator, mapping iterator
         # unpickle: factory(*(factory_args))
-        return self.__class__, (self._start, self._stop, self._step), None, None, None
+        return type(self), (self.start, self.stop, self.step), None, None, None
 
 # register at ABCs
 # do not use decorators to play nice with Cython
