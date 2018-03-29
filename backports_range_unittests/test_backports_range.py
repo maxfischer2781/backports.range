@@ -145,6 +145,9 @@ class CustomRangeTest(unittest.TestCase):
             assertSlice(range_ob, 0, -1, 1)
             assertSlice(range_ob, None, None, None)
             assertSlice(range_ob, range_ob.start, range_ob.stop, range_ob.step)
+            assertSlice(range_ob, range_ob.start, range_ob.stop, None)
             for offset in (-16, 16):
                 assertSlice(range_ob, range_ob.start + offset, range_ob.stop, range_ob.step)
+                assertSlice(range_ob, range_ob.start + offset, None, range_ob.step)
                 assertSlice(range_ob, range_ob.start, range_ob.stop + offset, range_ob.step)
+                assertSlice(range_ob, None, range_ob.stop + offset, range_ob.step)
