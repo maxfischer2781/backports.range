@@ -73,10 +73,10 @@ setup(
         ],
     keywords='backports range xrange',
     package_data={
-        'backports/range':
+        'backports':
             [
-                'README.rst', 'LICENSE.txt',
-                '*.pxd',
+                'range/README.rst', 'range/LICENSE.txt',
+                'range/*.pxd',
             ]
     },
     packages=find_packages(exclude=('backports_*',)),
